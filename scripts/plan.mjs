@@ -135,8 +135,15 @@ const chip = (tool, detail, warn = false) =>
 const card = (shot, i) => {
   const tools = [];
   if (shot.scene) {
-    const exists = existsSync(join("src", "scenes", `${shot.scene}.tsx`));
-    tools.push(chip("Remotion", exists ? shot.scene : `${shot.scene} · new scene, to write`, !exists));
+    const local = existsSync(join("src", "scenes", "local", `${shot.scene}.tsx`));
+    const kit = existsSync(join("src", "scenes", `${shot.scene}.tsx`));
+    tools.push(
+      chip(
+        "Remotion",
+        kit ? shot.scene : local ? `${shot.scene} · this reel only` : `${shot.scene} · new scene, to write`,
+        !kit && !local,
+      ),
+    );
   }
   if (take && layoutOf(shot) !== "graphic") tools.push(chip("Remotion", `Take · ${layoutOf(shot)}`));
   tools.push(chip("Voice", voiceLabel()));

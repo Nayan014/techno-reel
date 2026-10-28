@@ -325,6 +325,7 @@ Makes the video at `out/<name>/<name>.mp4`.
 | ------------ | ----------------------------------------------- |
 | `Hook`       | 🪝 big bold headline, for the first shot        |
 | `Statement`  | 💡 one idea on a tilted card                    |
+| `ChatPrompt` | 💬 a chat box where a prompt types itself in    |
 | `BigNumber`  | 🔢 a number that counts up                      |
 | `List`       | 📋 2–4 numbered points                          |
 | `Compare`    | ⚖️ two things side by side                      |
@@ -334,7 +335,11 @@ Makes the video at `out/<name>/<name>.mp4`.
 | `CTA`        | 👉 the ending: "Follow" button                  |
 
 Every shot type works in both looks: `"style": "flat"` (bold outlines) or `"style": "print"`
-(cut paper with a little presenter). Claude can also make new shot types when none fits.
+(cut paper with a little presenter). `Statement`, `ChatPrompt`, `List` and `Swarm` can show an
+AI tool's logo (ChatGPT, Claude, Copilot, Gemini, Grok, Cursor) with `"icon"`.
+
+Claude can also make new shot types when none fits. Those stay on your Mac in
+`src/scenes/local/`, never in git, unless you ask to add one to the kit.
 
 ---
 

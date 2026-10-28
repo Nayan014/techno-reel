@@ -91,7 +91,7 @@ export const CTA: React.FC<Props> = ({ text, button = "Follow" }) => {
           />
         </svg>
       </div>
-      <Sfx name="pop" at={8} />
+      <Sfx name="ding" at={8} volume={0.16} />
     </div>
   );
 };

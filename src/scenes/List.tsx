@@ -1,12 +1,18 @@
 import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { BrandIcon } from "../components/BrandIcons";
 import { Card, Sfx, cueFrames, fitText, usePop } from "../components/ui";
 import { useShot, useTheme } from "../context";
+
+export type ListItem = {
+  text: string;
+  icon?: string;
+};
 
 type Props = {
   title?: string;
   /** 2–4 items. Each one appears when its first word is spoken. */
-  items: string[];
+  items: Array<ListItem | string>;
 };
 
 /** Numbered items that pop in as they are spoken; only the newest one is in focus. */
@@ -14,7 +20,15 @@ export const List: React.FC<Props> = ({ title, items }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const shot = useShot();
-  const cues = cueFrames(shot.words, items, fps, shot.frames);
+  const normalizedItems: ListItem[] = items.map((item) =>
+    typeof item === "string" ? { text: item } : item,
+  );
+  const cues = cueFrames(
+    shot.words,
+    normalizedItems.map((it) => it.text),
+    fps,
+    shot.frames,
+  );
   const current = cues.filter((cue) => frame >= cue).length - 1;
   const titleIn = usePop(0);
   const theme = useTheme();
@@ -49,18 +63,32 @@ export const List: React.FC<Props> = ({ title, items }) => {
           {title}
         </div>
       )}
-      {items.map((item, i) => (
+      {normalizedItems.map((item, i) => (
         <Row
           key={i}
           index={i}
-          text={item}
+          text={item.text}
+          icon={item.icon}
           at={cues[i]}
           focused={i === current}
         />
       ))}
-      {cues.map((cue, i) => (
-        <Sfx key={i} name="pop" at={cue} volume={0.4} />
-      ))}
+      {cues.map((cue, i) => {
+        const soundNames: Array<"pop" | "blip" | "snap" | "ding"> = [
+          "pop",
+          "blip",
+          "snap",
+          "ding",
+        ];
+        return (
+          <Sfx
+            key={i}
+            name={soundNames[i % soundNames.length]}
+            at={cue}
+            volume={0.16}
+          />
+        );
+      })}
     </div>
   );
 };
@@ -68,9 +96,10 @@ export const List: React.FC<Props> = ({ title, items }) => {
 const Row: React.FC<{
   index: number;
   text: string;
+  icon?: string;
   at: number;
   focused: boolean;
-}> = ({ index, text, at, focused }) => {
+}> = ({ index, text, icon, at, focused }) => {
   const theme = useTheme();
   const s = usePop(at);
   const size = fitText(text, 560, 2, [52, 46, 40], 0.62);
@@ -101,7 +130,11 @@ const Row: React.FC<{
           color: theme.card,
         }}
       >
-        {index + 1}
+        {icon ? (
+          <BrandIcon name={icon} size={54} color={theme.card} />
+        ) : (
+          index + 1
+        )}
       </div>
       <Card
         style={{

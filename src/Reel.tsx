@@ -138,7 +138,7 @@ const ShotView: React.FC<{
       ) : (
         <Html5Audio src={staticFile(shot.audio)} />
       )}
-      {whoosh && <Sfx name="whoosh" volume={0.3} />}
+      {whoosh && <Sfx name="whoosh" volume={0.12} />}
     </ShotContext.Provider>
   );
 };

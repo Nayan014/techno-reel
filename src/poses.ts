@@ -19,6 +19,7 @@ export type PoseName = (typeof HOST_POSES)[number];
 /** What the host does when a shot doesn't name a `pose`. */
 const SCENE_POSE: Record<string, PoseName> = {
   Hook: "point",
+  ChatPrompt: "think",
   Statement: "think",
   BigNumber: "shock",
   List: "present",

@@ -173,8 +173,8 @@ export const Meter: React.FC<Props> = ({ label, top, bottom, level = 0.9 }) => {
           )}
         </div>
       </div>
-      <Sfx name="pop" at={5} volume={0.35} />
-      <Sfx name="tick" at={full} volume={0.45} />
+      <Sfx name="swipe" at={5} volume={0.14} />
+      <Sfx name="ding" at={full} volume={0.16} />
     </div>
   );
 };

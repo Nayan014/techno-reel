@@ -39,29 +39,61 @@ const noise = () => {
   return (seed / 4294967296) * 2 - 1;
 };
 
-let phase = 0;
-const pop = synth(0.14, (t) => {
-  phase += (2 * Math.PI * (160 + 740 * Math.exp(-t * 40))) / RATE;
-  return Math.sin(phase) * Math.exp(-t * 28) * 0.9;
+let popPhase = 0;
+const pop = synth(0.12, (t) => {
+  popPhase += (2 * Math.PI * (180 + 680 * Math.exp(-t * 45))) / RATE;
+  return Math.sin(popPhase) * Math.exp(-t * 32) * 0.7;
 });
 
-let low = 0;
-const whoosh = synth(0.38, (_, p) => {
-  const cutoff = 300 + 5200 * Math.sin(Math.PI * p);
-  low += (1 - Math.exp((-2 * Math.PI * cutoff) / RATE)) * (noise() - low);
-  return low * Math.sin(Math.PI * p) ** 2 * 1.4;
+let whooshLow = 0;
+const whoosh = synth(0.32, (_, p) => {
+  const cutoff = 260 + 4200 * Math.sin(Math.PI * p);
+  whooshLow += (1 - Math.exp((-2 * Math.PI * cutoff) / RATE)) * (noise() - whooshLow);
+  return whooshLow * Math.sin(Math.PI * p) ** 2 * 0.9;
 });
 
 const tick = synth(
-  0.06,
+  0.05,
   (t) =>
-    (Math.sin(2 * Math.PI * 2400 * t) * 0.6 +
-      Math.sin(2 * Math.PI * 1200 * t) * 0.4) *
-    Math.exp(-t * 90),
+    (Math.sin(2 * Math.PI * 2200 * t) * 0.5 +
+      Math.sin(2 * Math.PI * 1100 * t) * 0.3) *
+    Math.exp(-t * 110),
 );
 
+// Bright chime / bell ding for wins & highlights
+const ding = synth(0.35, (t) => {
+  const fundamental = Math.sin(2 * Math.PI * 1760 * t) * 0.6; // A6
+  const harmonic = Math.sin(2 * Math.PI * 3520 * t) * 0.25;
+  const shimmer = Math.sin(2 * Math.PI * 5280 * t) * 0.15;
+  return (fundamental + harmonic + shimmer) * Math.exp(-t * 10);
+});
+
+// Digital tech blip
+let blipPhase = 0;
+const blip = synth(0.10, (t, p) => {
+  const freq = 600 + 1200 * p;
+  blipPhase += (2 * Math.PI * freq) / RATE;
+  return Math.sin(blipPhase) * Math.sin(Math.PI * p) * 0.6;
+});
+
+// Crisp tactile snap
+const snap = synth(0.06, (t) => {
+  const transient = noise() * Math.exp(-t * 220) * 0.7;
+  const tone = Math.sin(2 * Math.PI * 1400 * t) * Math.exp(-t * 120) * 0.3;
+  return transient + tone;
+});
+
+// Airy page/card swipe
+let swipeLow = 0;
+const swipe = synth(0.22, (_, p) => {
+  const cutoff = 500 + 3500 * Math.sin(Math.PI * p);
+  swipeLow += (1 - Math.exp((-2 * Math.PI * cutoff) / RATE)) * (noise() - swipeLow);
+  return swipeLow * Math.sin(Math.PI * p) ** 1.8 * 0.7;
+});
+
 mkdirSync("public/sfx", { recursive: true });
-for (const [name, samples] of Object.entries({ pop, whoosh, tick })) {
+const sounds = { pop, whoosh, tick, ding, blip, snap, swipe };
+for (const [name, samples] of Object.entries(sounds)) {
   writeFileSync(`public/sfx/${name}.wav`, toWav(samples));
 }
-console.log("✓ public/sfx/pop.wav, whoosh.wav, tick.wav");
+console.log(`✓ public/sfx: ${Object.keys(sounds).map((k) => k + ".wav").join(", ")}`);

@@ -49,13 +49,20 @@ export const Card: React.FC<{
   );
 };
 
-export type SfxName = "pop" | "whoosh" | "tick";
+export type SfxName =
+  | "pop"
+  | "whoosh"
+  | "tick"
+  | "ding"
+  | "blip"
+  | "snap"
+  | "swipe";
 
 /** Plays a synthesized sound effect from public/sfx at `at` frames into the shot. */
 export const Sfx: React.FC<{ name: SfxName; at?: number; volume?: number }> = ({
   name,
   at = 0,
-  volume = 0.5,
+  volume = 0.2,
 }) => (
   <Sequence
     from={Math.max(0, Math.round(at))}

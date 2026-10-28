@@ -68,6 +68,11 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
 Pick a short kebab-case slug for the reel (`why-planes-curve`). All its files live in
 `public/reels/<slug>/`.
 
+A reel stays out of the kit. While making one, write only to `public/reels/<slug>/`,
+`out/<slug>/` and `src/scenes/local/`, all ignored by git. When a kit scene lacks something
+this reel needs, write a local scene instead of changing the kit one. Change kit files (`src/`,
+`scripts/`, `public/sfx/`, the docs) only when the user asks to improve the kit itself.
+
 1. **Plan.** Write the script as 5–9 shots, one spoken line each, 20–45 s total. Follow the
    playbook below. Pick a scene for every shot.
 2. **Write `public/reels/<slug>/script.json`.** Copy the shape of `public/reels/example/script.json`.
@@ -151,21 +156,29 @@ Staging
 | scene       | use for                | props                                                                       |
 | ----------- | ---------------------- | --------------------------------------------------------------------------- |
 | `Hook`      | shot one               | `lines: string[]` (1–3 short lines), `highlight?: string`                   |
-| `Statement` | one big idea on a card | `text` (≤ 8 words), `kicker?` (small tag)                                   |
+| `Statement` | one big idea on a card | `text` (≤ 8 words), `kicker?` (small tag), `icon?`                          |
+| `ChatPrompt` | asking an AI something | `prompt` (typed in over the shot), `title?`, `kicker?`, `app?` (default "Chat"), `icon?` |
 | `BigNumber` | a stat that counts up  | `value: number`, `label`, `prefix?`, `suffix?`, `decimals?`, `locale?`      |
-| `List`      | 2–4 steps or rules     | `title?`, `items: string[]` (each pops in when its first word is spoken)    |
+| `List`      | 2–4 steps or rules     | `title?`, `items`: strings or `{text, icon?}` (each pops in when its first word is spoken; an icon replaces the number) |
 | `Compare`   | this vs that           | `left: {label, value}`, `right: {label, value}`, `winner?: "left"\|"right"` |
 | `Meter`     | something building up  | `label`, `top?`, `bottom?` (scale ends), `level?` (0–1, default 0.9)        |
-| `Swarm`     | one spawns many        | `title?`, `lead?` (centre label), `count?` (3–12), `cue?` (word that spawns them) |
+| `Swarm`     | one spawns many        | `title?`, `lead?` (centre label), `count?` (3–12) or `items` (strings or `{name, icon?}`), `cue?` (word that spawns them, default "swarm") |
 | `Screenshot` | a real screen or photo | `src` (path under `public/`), `label?`, `focus?: [x, y]` (0–1, where to push in) |
 | `CTA`       | last shot              | `text`, `button?` (default "Follow")                                        |
 
 Every shot also takes `"captions": false` to hide the word-by-word captions.
 
+`icon` is a logo from `src/components/BrandIcons.tsx`: `chatgpt`/`openai`, `codex`, `claude`/
+`anthropic`, `copilot`, `gemini`, `grok`/`xai`/`x`, `cursor`. Use one only when the shot is about
+that product.
+
 ### Writing a new scene
 
-When no scene fits, make one rather than forcing a bad fit. Put it in `src/scenes/<Name>.tsx`
-and register it in `src/scenes/index.ts`. Build it from what's there:
+When no scene fits, make one rather than forcing a bad fit. Put it in
+`src/scenes/local/<Name>.tsx` with `export const <Name>`: it loads by itself, git ignores it, and
+it stays out of the kit. Don't register it in `src/scenes/index.ts`. Only when the user asks to
+add it to the kit, move it to `src/scenes/`, register it there, give it a default pose in
+`src/poses.ts`, and add it to the table above and to `README.md`. Build it from what's there:
 
 - `useTheme()` for colours (`paper`, `ink`, `accent`, `card`) and the style's look:
   `theme.display` (headline font; pass `theme.displayWidth` to `fitText`), `theme.edge(px)`,
@@ -187,7 +200,10 @@ Run `npm run typecheck` after.
 - `src/Reel.tsx`: lays shots end to end, adds voice, captions, whoosh between shots, handle,
   the print host, and on a talking head the take framed by each shot's `layout`.
 - `src/theme.ts`: palettes, the two styles (`makeTheme`) and the safe-area `LAYOUT`.
-- `src/components/`: `Background`, `Captions`, `Host` (print presenter), `Take` (your video).
+- `src/components/`: `Background`, `Captions`, `Host` (print presenter), `Take` (your video),
+  `BrandIcons` (product logos for `icon` props).
+- `src/scenes/`: the kit's scenes, registered in `index.ts`. `src/scenes/local/`: scenes for one
+  reel, loaded by themselves, ignored by git.
 - `src/timeline.ts`: joins `script.json` and `voice.json` into timed shots (also used by the scripts).
 - `src/poses.ts`: the print host's poses and each scene's default (also used by `plan`).
 - `src/components/Captions.tsx`: word-by-word captions.

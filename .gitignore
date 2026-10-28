@@ -16,6 +16,10 @@ voicestudio/
 public/reels/*
 !public/reels/example/
 
+# Scenes written for one reel
+src/scenes/local/*
+!src/scenes/local/README.md
+
 # Recordings dropped into the project folder
 /*.mp4
 /*.mov
