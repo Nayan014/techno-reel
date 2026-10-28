@@ -226,7 +226,7 @@ const html = `<!doctype html>
 <body>
 <main>
   <div class="top"><h1>${esc(script.title)}</h1><span class="stage">${stage}</span></div>
-  <p class="meta">${esc(slug)} · ${esc(script.style ?? "flat")} · ${esc(script.palette)} · ${esc(script.handle)} · ${script.shots.length} shots · ${approx}${total.toFixed(1)} s${reel ? "" : " (estimated, no voice yet)"}</p>
+  <p class="meta">${esc(slug)} · ${esc(script.style ?? "flat")} · ${esc(script.palette)} · ${esc(script.handle)} · ${script.music ? `music: ${esc(script.music)}` : "no music"} · ${script.shots.length} shots · ${approx}${total.toFixed(1)} s${reel ? "" : " (estimated, no voice yet)"}</p>
   <p class="hint">Want a change? Reply in chat with the card number, e.g. “03: make it a BigNumber”.</p>
   <div class="grid">
 ${script.shots.map(card).join("\n")}

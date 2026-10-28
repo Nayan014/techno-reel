@@ -19,7 +19,7 @@ type Props = {
 
 /** Typing starts this many frames into the shot. */
 const TYPE_FROM = 8;
-/** A key click every this many frames while typing. */
+/** A keystroke every this many frames while typing. */
 const TICK_EVERY = 6;
 
 /** A chat app's input box with a prompt typing itself in. */
@@ -226,11 +226,11 @@ export const ChatPrompt: React.FC<Props> = ({
         </div>
       )}
 
-      {kicker && <Sfx name="snap" at={6} volume={0.16} />}
+      {kicker && <Sfx name="pop" at={6} />}
       {ticks.map((at) => (
-        <Sfx key={at} name="tick" at={at} volume={0.07} />
+        <Sfx key={at} name="key" at={at} volume={0.18} />
       ))}
-      <Sfx name="blip" at={typeTo} volume={0.15} />
+      <Sfx name="blip" at={typeTo} volume={0.25} />
     </div>
   );
 };

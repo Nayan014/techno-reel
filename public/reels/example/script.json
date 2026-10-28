@@ -2,6 +2,7 @@
   "title": "You have 1.5 seconds",
   "palette": "clay",
   "handle": "@yourhandle",
+  "music": "upbeat",
   "shots": [
     {
       "id": "01",

@@ -16,8 +16,10 @@ type Props = {
 };
 
 const LAND = 27;
+/** Clicks while it counts, one per this share of the way. */
+const CLICKS = 8;
 
-/** A number that counts up, lands with a tick, and gets a label card. */
+/** A number that counts up with clicks, lands with a hit, and gets a label card. */
 export const BigNumber: React.FC<Props> = ({
   value,
   label,
@@ -31,11 +33,20 @@ export const BigNumber: React.FC<Props> = ({
   const digits = decimals ?? (Number.isInteger(value) ? 0 : 1);
   const format = (n: number) =>
     `${prefix}${n.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })}${suffix}`;
-  const progress = interpolate(frame, [3, LAND], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-    easing: Easing.out(Easing.cubic),
+  const countAt = (f: number) =>
+    interpolate(f, [3, LAND], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.out(Easing.cubic),
+    });
+  const progress = countAt(frame);
+  // A click each time the count passes another step, so they slow down as it lands.
+  const clicks = Array.from({ length: CLICKS - 1 }, (_, k) => {
+    let f = 3;
+    while (f < LAND && countAt(f) < (k + 1) / CLICKS) f++;
+    return f;
   });
+  const money = /[$€£¥₹]/.test(prefix + suffix);
   const size = fitText(
     format(value),
     880,
@@ -109,7 +120,10 @@ export const BigNumber: React.FC<Props> = ({
           {label}
         </div>
       </Card>
-      <Sfx name="tick" at={LAND} />
+      {clicks.map((at, i) => (
+        <Sfx key={i} name="click" at={at} volume={0.12} variant={i} />
+      ))}
+      <Sfx name={money ? "coin" : "impact"} at={LAND} volume={0.3} />
     </div>
   );
 };

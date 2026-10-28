@@ -1,7 +1,8 @@
 import React from "react";
-import { Easing, interpolate, useCurrentFrame } from "remotion";
+import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { Sfx, fitText, useFloat, usePop } from "../components/ui";
 import { useShot, useTheme } from "../context";
+import { RISER_SECONDS } from "../sound";
 
 type Props = {
   /** What fills up, 1–2 words ("adenosine"). */
@@ -27,6 +28,7 @@ export const Meter: React.FC<Props> = ({ label, top, bottom, level = 0.9 }) => {
   const frame = useCurrentFrame();
   const theme = useTheme();
   const { frames } = useShot();
+  const { fps } = useVideoConfig();
   const titleIn = usePop(0);
   const tankIn = usePop(5);
   const float = useFloat(8, 90);
@@ -173,8 +175,8 @@ export const Meter: React.FC<Props> = ({ label, top, bottom, level = 0.9 }) => {
           )}
         </div>
       </div>
-      <Sfx name="swipe" at={5} volume={0.14} />
-      <Sfx name="ding" at={full} volume={0.16} />
+      <Sfx name="riser" at={Math.max(5, full - RISER_SECONDS * fps)} volume={0.25} />
+      <Sfx name="impact" at={full} volume={0.3} />
     </div>
   );
 };

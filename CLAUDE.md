@@ -78,6 +78,9 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
 2. **Write `public/reels/<slug>/script.json`.** Copy the shape of `public/reels/example/script.json`.
    `palette` is one of `clay`, `cobalt`, `forest`, `mono`; `style` is `flat` or `print`;
    `handle` is the user's @handle (ask once if you don't know it, then reuse it).
+   `music` is a bed under the voice that dips while a line is spoken: `lofi`, `upbeat`, `chill`
+   or `funk`, picked to fit the topic. Leave it out when the user says no music, will add
+   Instagram audio themselves, or on a talking head whose take already has music or noise.
 3. **Voice.** `npm run voice -- <slug>`. Writes `voice.json` and one audio file per shot.
    Unchanged lines are cached, so re-run it after every edit to a `say` line. Lines marked `~`
    have estimated word timing. With VoiceStudio, a reel in another language times captions better
@@ -187,6 +190,13 @@ add it to the kit, move it to `src/scenes/`, register it there, give it a defaul
 - `body` font from `src/fonts.ts`.
 - `usePop(delay)`, `useFloat()`, `Card`, `Sfx`, `fitText()` and `cueFrames()` from
   `src/components/ui.tsx`.
+- `<Sfx name at? volume? variant?>` plays a sound at a frame of the shot. Names (in
+  `src/sound.ts`): `whoosh`, `whip` (fast punch-in), `swipe` (paper or card slide), `pop`,
+  `click`, `key` (one keystroke), `blip`, `ding`, `impact` (something big lands), `riser`
+  (`RISER_SECONDS` long, peaks at its end), `shutter`, `coin`, `success`. Every file is levelled
+  the same, so `volume` is the mix: about 0.3 for a hit, 0.1–0.2 for repeats. Sounds with several
+  takes vary by themselves; pass `variant={i}` to step through them. One sound per beat: the cut
+  already has a whoosh, so don't add one at frame 0.
 - `useShot()` gives `words` (with timings), `frames` and `say`, so you can time a beat to the
   moment a word is spoken: `cueFrames(shot.words, ["keyword"], fps, shot.frames)`.
 - Animate with `useCurrentFrame()` + `spring` / `interpolate`. No CSS transitions or
@@ -197,18 +207,24 @@ Run `npm run typecheck` after.
 
 ## Files
 
-- `src/Reel.tsx`: lays shots end to end, adds voice, captions, whoosh between shots, handle,
-  the print host, and on a talking head the take framed by each shot's `layout`.
+- `src/Reel.tsx`: lays shots end to end, adds voice, captions, a whoosh between shots (a paper
+  swipe in print), the music bed, handle, the print host, and on a talking head the take framed
+  by each shot's `layout`.
 - `src/theme.ts`: palettes, the two styles (`makeTheme`) and the safe-area `LAYOUT`.
 - `src/components/`: `Background`, `Captions`, `Host` (print presenter), `Take` (your video),
-  `BrandIcons` (product logos for `icon` props).
+  `Music` (the ducked music bed), `BrandIcons` (product logos for `icon` props).
+- `src/sound.ts`: the sound effect and music names (also used by the scripts).
 - `src/scenes/`: the kit's scenes, registered in `index.ts`. `src/scenes/local/`: scenes for one
   reel, loaded by themselves, ignored by git.
 - `src/timeline.ts`: joins `script.json` and `voice.json` into timed shots (also used by the scripts).
 - `src/poses.ts`: the print host's poses and each scene's default (also used by `plan`).
 - `src/components/Captions.tsx`: word-by-word captions.
 - `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `check`, `plan`, `stills`, `render`, `sfx`
-  (regenerates `public/sfx/`).
+  (downloads the CC0 sources, masters them into `public/sfx/` and `public/music/`, writes
+  `public/sfx/CREDITS.md` and an audition page at `out/sfx/index.html`). To swap a sound, change
+  its source in `scripts/sfx.mjs` and re-run it.
+- `public/sfx/`, `public/music/`: the sounds and music beds, all CC0 (public domain); sources in
+  `public/sfx/CREDITS.md`.
 - `public/reels/`: one folder per reel. Only `example/` is in git; the user's reels stay local.
 - `out/<slug>/`: one folder per reel with `<slug>.mp4`, `caption.txt`, `plan.html` and
   `stills/`. Safe to delete.

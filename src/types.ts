@@ -1,3 +1,5 @@
+import type { MusicName } from "./sound";
+
 export type PaletteName = "clay" | "cobalt" | "forest" | "mono";
 
 /** flat: bold outlines and hard shadows. print: lit card stock, soft depth, a paper host. */
@@ -32,6 +34,8 @@ export type Script = {
   handle: string;
   /** Print style: false hides the paper host. */
   host?: boolean;
+  /** Music bed under the reel, dipped while a line is spoken. None when left out. */
+  music?: MusicName | false;
   /** Talking head: your recording, made by `npm run transcribe` (always "take.mp4"). */
   take?: string;
   /** Talking head: where your face is in the take, 0–1 from the left and top. */

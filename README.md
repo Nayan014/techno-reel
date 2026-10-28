@@ -39,7 +39,9 @@ sound. 1080×1920, ready to post.
 - ✍️ **Writes the script.** Hook first, one idea per shot, 20–45 seconds.
 - 🎤 **Records a natural voice.** Free and local, no cloud, no subscription.
 - 🎞️ **Animates every shot in code.** Nine scene types, two looks, all built with Remotion.
-- 💬 **Adds word-by-word captions** and sound effects, kept clear of Instagram's buttons.
+- 💬 **Adds word-by-word captions**, kept clear of Instagram's buttons.
+- 🔊 **Scores it.** Real recorded sound effects on every beat and a music bed that dips under
+  the voice. All public domain, so they're safe in paid work and monetised posts.
 - 🗂️ **Plan mode.** See every shot as a card and change it before anything is rendered.
 - 🎥 **Edits your own video.** Cuts the "um"s, pauses and retakes out of a talking-head recording.
 - 🔍 **Checks its own work.** Pace and look checks on every shot before the final render.
@@ -143,6 +145,7 @@ Just add it to your sentence. Some examples:
 | 📊 A specific visual | `show 72% as a big number` or `compare iPhone vs Android`                                                               |
 | 📋 A list            | `make it a top 3 list`                                                                                                  |
 | ✂️ Paper look        | `use the print style`: cut-paper cards, a little paper presenter, captions that fill in as they're spoken               |
+| 🎵 Music             | `use funk music` or `no music`. Choices: **lofi**, **upbeat**, **chill**, **funk**                                      |
 | 🗂️ Plan it first     | `plan it first`: cards for every shot you can change before the video is made                                           |
 | 🎥 Your own video    | `edit ~/Downloads/my-video.mov into a reel` (see below)                                                                 |
 
@@ -364,6 +367,10 @@ Claude can also make new shot types when none fits. Those stay on your Mac in
   [Remotion company licence](https://www.remotion.dev/license). VoiceStudio is AGPL-3.0; setup
   downloads it separately, it isn't part of this repo. The af_heart voice model (Kokoro) has an
   Apache-2.0 licence label.
+- 🔊 **Sounds and music:** every sound effect and music bed is CC0 (public domain): use them
+  anywhere, no credit needed. They're from [Kenney](https://kenney.nl), [Freesound](https://freesound.org)
+  and [HoliznaCC0](https://holiznacc0.bandcamp.com); `public/sfx/CREDITS.md` lists each one.
+  Want trending Instagram audio instead? Say `no music` and add it in the Instagram app.
 - 🔒 **Your reels stay private:** `.gitignore` keeps your own reels, recordings, renders and `.env`
   out of git. Only `public/reels/example/` is shared.
 - 🎬 **Example:** `public/reels/example/` is a finished reel. Rebuild it with

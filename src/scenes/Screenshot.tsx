@@ -90,7 +90,8 @@ export const Screenshot: React.FC<Props> = ({ src, label, focus = [0.5, 0.4] }) 
           {label}
         </div>
       )}
-      {label && <Sfx name="pop" at={7} volume={0.35} />}
+      <Sfx name="shutter" at={2} volume={0.45} />
+      {label && <Sfx name="pop" at={7} />}
     </div>
   );
 };

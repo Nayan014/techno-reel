@@ -9,7 +9,8 @@ import {
   useVideoConfig,
   type SpringConfig,
 } from "remotion";
-import { useTheme } from "../context";
+import { useShot, useTheme } from "../context";
+import { type SfxName, sfxFile } from "../sound";
 import type { Word } from "../types";
 
 /** 0 → 1 spring that starts at `delay` frames into the shot. */
@@ -49,29 +50,30 @@ export const Card: React.FC<{
   );
 };
 
-export type SfxName =
-  | "pop"
-  | "whoosh"
-  | "tick"
-  | "ding"
-  | "blip"
-  | "snap"
-  | "swipe";
+/**
+ * Plays a sound effect from public/sfx at `at` frames into the shot. Sounds with several takes
+ * pick one per shot and moment, so repeats don't sound copy-pasted; `variant` picks one by hand.
+ */
+export const Sfx: React.FC<{
+  name: SfxName;
+  at?: number;
+  volume?: number;
+  variant?: number;
+}> = ({ name, at = 0, volume = 0.3, variant }) => {
+  const shot = useShot();
+  const take = variant ?? hash(`${shot.id}:${name}:${Math.round(at)}`);
+  return (
+    <Sequence from={Math.max(0, Math.round(at))} layout="none">
+      <Html5Audio src={staticFile(sfxFile(name, take))} volume={volume} />
+    </Sequence>
+  );
+};
 
-/** Plays a synthesized sound effect from public/sfx at `at` frames into the shot. */
-export const Sfx: React.FC<{ name: SfxName; at?: number; volume?: number }> = ({
-  name,
-  at = 0,
-  volume = 0.2,
-}) => (
-  <Sequence
-    from={Math.max(0, Math.round(at))}
-    durationInFrames={24}
-    layout="none"
-  >
-    <Html5Audio src={staticFile(`sfx/${name}.wav`)} volume={volume} />
-  </Sequence>
-);
+const hash = (text: string) => {
+  let h = 0;
+  for (const c of text) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return h;
+};
 
 const normalize = (text: string) =>
   text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");

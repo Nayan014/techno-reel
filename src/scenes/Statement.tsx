@@ -74,7 +74,7 @@ export const Statement: React.FC<Props> = ({ text, kicker, icon }) => {
           {kicker}
         </div>
       )}
-      {kicker && <Sfx name="pop" at={7} volume={0.35} />}
+      {kicker && <Sfx name="pop" at={7} />}
     </div>
   );
 };

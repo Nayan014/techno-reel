@@ -73,22 +73,9 @@ export const List: React.FC<Props> = ({ title, items }) => {
           focused={i === current}
         />
       ))}
-      {cues.map((cue, i) => {
-        const soundNames: Array<"pop" | "blip" | "snap" | "ding"> = [
-          "pop",
-          "blip",
-          "snap",
-          "ding",
-        ];
-        return (
-          <Sfx
-            key={i}
-            name={soundNames[i % soundNames.length]}
-            at={cue}
-            volume={0.16}
-          />
-        );
-      })}
+      {cues.map((cue, i) => (
+        <Sfx key={i} name="pop" at={cue} variant={i} />
+      ))}
     </div>
   );
 };

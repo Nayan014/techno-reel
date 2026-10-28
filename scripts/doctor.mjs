@@ -2,6 +2,7 @@
 // Usage: npm run doctor
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { MUSIC, SFX, musicFile, sfxFile } from "../src/sound.ts";
 import {
   hasFilters,
   loadEnv,
@@ -37,10 +38,13 @@ row(
   "Run: npm run setup",
 );
 row(
-  ["pop", "whoosh", "tick"].every((name) =>
-    existsSync(`public/sfx/${name}.wav`),
-  ),
-  "Sound effects",
+  [
+    ...Object.entries(SFX).flatMap(([name, takes]) =>
+      Array.from({ length: takes }, (_, i) => sfxFile(name, i)),
+    ),
+    ...MUSIC.map(musicFile),
+  ].every((file) => existsSync(`public/${file}`)),
+  "Sound effects and music",
   "Run: npm run sfx",
 );
 

@@ -148,8 +148,10 @@ export const Swarm: React.FC<Props> = ({
           {lead}
         </div>
       </div>
-      <Sfx name="blip" at={3} volume={0.15} />
-      <Sfx name="swipe" at={spawn} volume={0.14} />
+      <Sfx name="blip" at={3} volume={0.25} />
+      {nodes.map((node, i) => (
+        <Sfx key={i} name="pop" at={node.at} volume={0.15} variant={i} />
+      ))}
     </div>
   );
 };

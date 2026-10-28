@@ -80,7 +80,8 @@ export const Hook: React.FC<Props> = ({ lines, highlight }) => {
           })}
         </div>
       ))}
-      {firstHot >= 0 && <Sfx name="pop" at={firstHot * STAGGER + 2} />}
+      <Sfx name="whip" volume={0.25} />
+      <Sfx name="impact" at={Math.max(0, firstHot) * STAGGER + 2} volume={0.35} />
     </div>
   );
 };

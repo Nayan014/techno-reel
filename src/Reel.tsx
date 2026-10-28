@@ -11,6 +11,7 @@ import { Background } from "./components/Background";
 import { Captions } from "./components/Captions";
 import { Handle } from "./components/Handle";
 import { Host } from "./components/Host";
+import { Music } from "./components/Music";
 import { Take } from "./components/Take";
 import { Sfx } from "./components/ui";
 import { ShotContext, ThemeContext, useTheme } from "./context";
@@ -43,6 +44,7 @@ export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
           >
             <ShotView
               shot={shot}
+              index={i}
               previous={reel.shots[i - 1]}
               take={reel.take ? `reels/${slug}/${reel.take}` : undefined}
               focus={reel.focus ?? [0.5, 0.4]}
@@ -51,6 +53,7 @@ export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
           </Sequence>
         ))}
         {host && <Host shots={reel.shots} />}
+        {reel.music && <Music name={reel.music} shots={reel.shots} />}
         <Handle text={reel.handle} />
       </AbsoluteFill>
     </ThemeContext.Provider>
@@ -62,12 +65,14 @@ const layoutOf = (shot: Shot, take: boolean): Layout =>
 
 const ShotView: React.FC<{
   shot: Shot;
+  index: number;
   previous?: Shot;
   take?: string;
   focus: [number, number];
   host: boolean;
-}> = ({ shot, previous, take, focus, host }) => {
+}> = ({ shot, index, previous, take, focus, host }) => {
   const { fps } = useVideoConfig();
+  const theme = useTheme();
   const Scene = shot.scene ? scenes[shot.scene] : undefined;
   if (shot.scene && !Scene) {
     throw new Error(
@@ -138,7 +143,14 @@ const ShotView: React.FC<{
       ) : (
         <Html5Audio src={staticFile(shot.audio)} />
       )}
-      {whoosh && <Sfx name="whoosh" volume={0.12} />}
+      {whoosh && (
+        // Paper slides between cut-paper shots; air everywhere else. Takes alternate per cut.
+        <Sfx
+          name={theme.style === "print" ? "swipe" : "whoosh"}
+          volume={0.3}
+          variant={index}
+        />
+      )}
     </ShotContext.Provider>
   );
 };

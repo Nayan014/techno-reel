@@ -64,8 +64,8 @@ export const Compare: React.FC<Props> = ({ left, right, winner }) => {
         <Panel side={right} highlighted={winner === "right" && verdict > 0.5} />
       </div>
       <VsBadge scale={vs} />
-      <Sfx name="snap" at={rightAt} volume={0.15} />
-      {winner && <Sfx name="ding" at={rightAt + 12} volume={0.16} />}
+      <Sfx name="whip" at={rightAt} volume={0.25} />
+      {winner && <Sfx name="ding" at={rightAt + 12} volume={0.25} />}
     </div>
   );
 };
