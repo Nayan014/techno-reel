@@ -1,0 +1,318 @@
+{
+  "provider": "voicestudio",
+  "voice": "mlx-audio/af_heart",
+  "lines": {
+    "01": {
+      "say": "You have one and a half seconds.",
+      "audio": "reels/example/audio/01-9e732c03.wav",
+      "end": 1.25,
+      "words": [
+        {
+          "text": "You",
+          "start": 0.061,
+          "end": 0.143
+        },
+        {
+          "text": "have",
+          "start": 0.183,
+          "end": 0.346
+        },
+        {
+          "text": "one",
+          "start": 0.428,
+          "end": 0.53
+        },
+        {
+          "text": "and",
+          "start": 0.55,
+          "end": 0.631
+        },
+        {
+          "text": "a",
+          "start": 0.652,
+          "end": 0.693
+        },
+        {
+          "text": "half",
+          "start": 0.733,
+          "end": 0.917
+        },
+        {
+          "text": "seconds.",
+          "start": 0.937,
+          "end": 1.1
+        }
+      ]
+    },
+    "02": {
+      "say": "That's all people give a reel before they swipe.",
+      "audio": "reels/example/audio/02-e0819130.wav",
+      "end": 2.17,
+      "words": [
+        {
+          "text": "That's",
+          "start": 0.081,
+          "end": 0.303
+        },
+        {
+          "text": "all",
+          "start": 0.384,
+          "end": 0.525
+        },
+        {
+          "text": "people",
+          "start": 0.586,
+          "end": 0.889
+        },
+        {
+          "text": "give",
+          "start": 0.929,
+          "end": 1.091
+        },
+        {
+          "text": "a",
+          "start": 1.111,
+          "end": 1.131
+        },
+        {
+          "text": "reel",
+          "start": 1.212,
+          "end": 1.394
+        },
+        {
+          "text": "before",
+          "start": 1.495,
+          "end": 1.737
+        },
+        {
+          "text": "they",
+          "start": 1.778,
+          "end": 1.879
+        },
+        {
+          "text": "swipe.",
+          "start": 1.899,
+          "end": 2.02
+        }
+      ]
+    },
+    "03": {
+      "say": "Three rules. Hook first. One idea per shot. Never stand still.",
+      "audio": "reels/example/audio/03-5950f678.wav",
+      "end": 3.79,
+      "words": [
+        {
+          "text": "Three",
+          "start": 0.061,
+          "end": 0.264
+        },
+        {
+          "text": "rules.",
+          "start": 0.326,
+          "end": 0.692
+        },
+        {
+          "text": "Hook",
+          "start": 0.854,
+          "end": 1.017
+        },
+        {
+          "text": "first.",
+          "start": 1.058,
+          "end": 1.18
+        },
+        {
+          "text": "One",
+          "start": 1.905,
+          "end": 2.005
+        },
+        {
+          "text": "idea",
+          "start": 2.086,
+          "end": 2.348
+        },
+        {
+          "text": "per",
+          "start": 2.409,
+          "end": 2.53
+        },
+        {
+          "text": "shot.",
+          "start": 2.57,
+          "end": 2.853
+        },
+        {
+          "text": "Never",
+          "start": 3.014,
+          "end": 3.216
+        },
+        {
+          "text": "stand",
+          "start": 3.216,
+          "end": 3.519
+        },
+        {
+          "text": "still.",
+          "start": 3.519,
+          "end": 3.64
+        }
+      ]
+    },
+    "04": {
+      "say": "Nothing should sit still for more than one point two seconds.",
+      "audio": "reels/example/audio/04-5300e34f.wav",
+      "end": 2.527,
+      "words": [
+        {
+          "text": "Nothing",
+          "start": 0.121,
+          "end": 0.423
+        },
+        {
+          "text": "should",
+          "start": 0.463,
+          "end": 0.624
+        },
+        {
+          "text": "sit",
+          "start": 0.665,
+          "end": 0.846
+        },
+        {
+          "text": "still",
+          "start": 0.907,
+          "end": 1.168
+        },
+        {
+          "text": "for",
+          "start": 1.471,
+          "end": 1.571
+        },
+        {
+          "text": "more",
+          "start": 1.612,
+          "end": 1.732
+        },
+        {
+          "text": "than",
+          "start": 1.773,
+          "end": 1.894
+        },
+        {
+          "text": "one",
+          "start": 1.894,
+          "end": 1.959
+        },
+        {
+          "text": "point",
+          "start": 1.959,
+          "end": 2.05
+        },
+        {
+          "text": "two",
+          "start": 2.05,
+          "end": 2.115
+        },
+        {
+          "text": "seconds.",
+          "start": 2.115,
+          "end": 2.377
+        }
+      ]
+    },
+    "05": {
+      "say": "A wall of text loses. One clear idea wins.",
+      "audio": "reels/example/audio/05-ef2cf237.wav",
+      "end": 2.59,
+      "words": [
+        {
+          "text": "A",
+          "start": 0.081,
+          "end": 0.121
+        },
+        {
+          "text": "wall",
+          "start": 0.161,
+          "end": 0.363
+        },
+        {
+          "text": "of",
+          "start": 0.383,
+          "end": 0.444
+        },
+        {
+          "text": "text",
+          "start": 0.484,
+          "end": 0.746
+        },
+        {
+          "text": "loses.",
+          "start": 0.766,
+          "end": 1.149
+        },
+        {
+          "text": "One",
+          "start": 1.613,
+          "end": 1.734
+        },
+        {
+          "text": "clear",
+          "start": 1.795,
+          "end": 2.017
+        },
+        {
+          "text": "idea",
+          "start": 2.097,
+          "end": 2.319
+        },
+        {
+          "text": "wins.",
+          "start": 2.339,
+          "end": 2.44
+        }
+      ]
+    },
+    "06": {
+      "say": "Follow for more reels built in code.",
+      "audio": "reels/example/audio/06-e3b83e0c.wav",
+      "end": 1.81,
+      "words": [
+        {
+          "text": "Follow",
+          "start": 0.081,
+          "end": 0.364
+        },
+        {
+          "text": "for",
+          "start": 0.385,
+          "end": 0.506
+        },
+        {
+          "text": "more",
+          "start": 0.526,
+          "end": 0.688
+        },
+        {
+          "text": "reels",
+          "start": 0.749,
+          "end": 1.073
+        },
+        {
+          "text": "built",
+          "start": 1.154,
+          "end": 1.377
+        },
+        {
+          "text": "in",
+          "start": 1.417,
+          "end": 1.518
+        },
+        {
+          "text": "code.",
+          "start": 1.559,
+          "end": 1.66
+        }
+      ]
+    }
+  }
+}

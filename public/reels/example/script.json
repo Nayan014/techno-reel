@@ -1,0 +1,55 @@
+{
+  "title": "You have 1.5 seconds",
+  "palette": "clay",
+  "handle": "@yourhandle",
+  "shots": [
+    {
+      "id": "01",
+      "say": "You have one and a half seconds.",
+      "scene": "Hook",
+      "captions": false,
+      "props": { "lines": ["You have", "1.5 seconds"], "highlight": "1.5" }
+    },
+    {
+      "id": "02",
+      "say": "That's all people give a reel before they swipe.",
+      "scene": "Statement",
+      "props": { "kicker": "the hook", "text": "Then they swipe" }
+    },
+    {
+      "id": "03",
+      "say": "Three rules. Hook first. One idea per shot. Never stand still.",
+      "scene": "List",
+      "props": {
+        "title": "3 rules",
+        "items": ["Hook first", "One idea per shot", "Never stand still"]
+      }
+    },
+    {
+      "id": "04",
+      "say": "Nothing should sit still for more than one point two seconds.",
+      "scene": "BigNumber",
+      "props": {
+        "value": 1.2,
+        "suffix": "s",
+        "label": "max time anything sits still"
+      }
+    },
+    {
+      "id": "05",
+      "say": "A wall of text loses. One clear idea wins.",
+      "scene": "Compare",
+      "props": {
+        "left": { "label": "Wall of text", "value": "Loses" },
+        "right": { "label": "One clear idea", "value": "Wins" },
+        "winner": "right"
+      }
+    },
+    {
+      "id": "06",
+      "say": "Follow for more reels built in code.",
+      "scene": "CTA",
+      "props": { "text": "More reels built in code", "button": "Follow" }
+    }
+  ]
+}

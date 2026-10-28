@@ -1,0 +1,37 @@
+{
+  "name": "techno-reel",
+  "private": true,
+  "description": "Type one line, get a finished animated Instagram reel. Or cut your own talking-head video. Made with Remotion, runs locally.",
+  "author": "Techno Ravan",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "sfx": "node scripts/sfx.mjs",
+    "transcribe": "node scripts/transcribe.mjs",
+    "voice": "node scripts/voice.mjs",
+    "check": "node scripts/check.mjs",
+    "plan": "node scripts/plan.mjs",
+    "stills": "node scripts/stills.mjs",
+    "render": "node scripts/render.mjs",
+    "studio": "remotion studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.539",
+    "@remotion/cli": "^4.0.539",
+    "@remotion/google-fonts": "^4.0.539",
+    "@remotion/renderer": "^4.0.539",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.539"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "5.8"
+  }
+}
