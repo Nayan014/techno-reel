@@ -48,7 +48,7 @@ sound. 1080×1920, ready to post.
 ## 🧭 How it works
 
 ```mermaid
-flowchart LR
+flowchart TD
     idea(["💡 One line"]) --> mode{"Auto or Plan?"}
     mode -- Auto --> script["✍️ Script"]
     mode -- Plan --> cards["🗂️ Script + plan cards<br/>you review"]
