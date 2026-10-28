@@ -57,7 +57,7 @@ async function setUpVoiceStudio() {
     if (process.platform !== "darwin" || process.arch !== "arm64") {
       console.log(
         "  skipped: the free local voice needs a Mac with Apple Silicon.\n" +
-          "  Reels will use ElevenLabs (add ELEVENLABS_API_KEY to .env) or the computer's own voice.",
+          "  To record reels anyway, set VOICE_PROVIDER=elevenlabs (paid) or say (robotic) in .env.",
       );
       return;
     }

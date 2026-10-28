@@ -218,6 +218,13 @@ is used if it's there).
 - ✅ **You don't need to start it.** The kit starts it by itself when needed.
 - ⏳ The first time it starts, it takes 5–30 seconds. After that, it stays on and is fast.
 - 🗣️ The voice is **af_heart**, a natural American female voice.
+- 🛑 **No robot voice.** If VoiceStudio won't start, the kit stops and Claude asks you what to
+  do. It never quietly swaps in the Mac's built-in voice.
+
+**Pauses and weight.** Claude marks each line so it doesn't sound read out in one breath:
+`|` is a short beat, `||` a long pause, and `*words*` are said slower and heavier. For example
+`Every cup pulls focus | *from tomorrow.*` The marks never show in the captions. To change the
+rhythm, tell Claude things like `pause before "tomorrow" in shot 3` or `say "sleep" heavier`.
 
 **Want a different voice?** Do this once:
 
@@ -277,8 +284,8 @@ cd techno-reel && npm run doctor
 
 | Problem                           | Why                                                                | Fix                                                                                       |
 | --------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| The voice sounds like a robot     | VoiceStudio didn't start, so the kit used the Mac's built-in voice | Run `npm run doctor`. If VoiceStudio shows ✗, look at `out/voicestudio.log` or ask Claude |
-| Captions are a bit early or late  | Same reason: with the robot voice, caption timing is guessed       | Get VoiceStudio running, then say `record the voice again`                                |
+| "VoiceStudio isn't answering"     | VoiceStudio didn't start, so no voice was recorded                 | Run `npm run doctor`. If VoiceStudio shows ✗, look at `out/voicestudio.log` or ask Claude |
+| Captions are a bit early or late  | VoiceStudio's speech recognition didn't run, so timing was guessed | Run `npm run doctor`, then say `record the voice again`                                   |
 | The first reel of the day is slow | The voice models are loading                                       | Normal. The next reels are fast                                                           |
 | Text is cut off or too big        | A shot has too many words                                          | Tell Claude `the text in shot 4 doesn't fit`                                              |
 | The Mac feels slow                | VoiceStudio uses memory while it runs                              | Stop it with the command in [The voice](#-the-voice)                                      |

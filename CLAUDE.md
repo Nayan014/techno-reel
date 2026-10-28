@@ -27,18 +27,21 @@ If `node_modules/` or the voice engine is missing, run `npm run setup` (installs
 makes `.env`, installs VoiceStudio into `./voicestudio`, then runs the doctor). Otherwise run
 `npm run doctor`. Walk the user through every ✗ either prints.
 
-Voice engines, tried in this order (force one with `VOICE_PROVIDER` in `.env`):
+The voice is **VoiceStudio**: free, local, served on `127.0.0.1:3900` from the headless install
+in `./voicestudio` (made by `npm run setup`), or `~/VoiceStudio` if that's where it already is
+(`VOICESTUDIO_DIR` overrides both). When it isn't running, `npm run voice` and `npm run doctor`
+start it in the background themselves (about 30 s, log in `out/voicestudio.log`) and leave it
+running for later reels; don't start it by hand. Default engine is Kokoro (`mlx-audio`, voice
+`af_heart`): Apache-2.0, English, no German. For German or a cloned voice the user must switch
+to OmniVoice and accept its non-commercial licence themselves; never accept a model licence for
+them.
 
-1. **VoiceStudio**: free, local, served on `127.0.0.1:3900` from the headless install in
-   `./voicestudio` (made by `npm run setup`), or `~/VoiceStudio` if that's where it already is
-   (`VOICESTUDIO_DIR` overrides both). When it isn't running, `npm run voice` and `npm run doctor`
-   start it in the background themselves (about 30 s, log in `out/voicestudio.log`) and leave it
-   running for later reels; don't start it by hand. Default engine is
-   Kokoro (`mlx-audio`, voice `af_heart`): Apache-2.0, English, no German. For German or a cloned
-   voice the user must switch to OmniVoice and accept its non-commercial licence themselves;
-   never accept a model licence for them.
-2. **ElevenLabs**: paid, used when `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID` are set.
-3. **macOS `say`**: always there on a Mac, robotic, caption timing estimated.
+There is no fallback. When VoiceStudio won't answer or start, `npm run voice` stops without
+recording. Stop too: show the user its error and the end of `out/voicestudio.log`, try what the
+log points to (`npm run doctor`, a stale process on port 3900), and ask before anything else.
+Never switch to another engine yourself. Only the user picks one, with `VOICE_PROVIDER` in
+`.env`: `elevenlabs` (paid, needs `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`) or `say` (macOS,
+robotic, caption timing estimated). Both read the plain line, without its delivery marks.
 
 Settings go in `.env` (copy `.env.example`).
 
@@ -84,7 +87,8 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
    When a shot is about a product (ChatGPT, Claude, Cursor…), follow the `brand-logos` skill
    (`.claude/skills/brand-logos/SKILL.md`) to fetch its current logo, and set the shot's `icon`.
 3. **Voice.** `npm run voice -- <slug>`. Writes `voice.json` and one audio file per shot.
-   Unchanged lines are cached, so re-run it after every edit to a `say` line. Lines marked `~`
+   Unchanged lines are cached, so re-run it after every edit to a `say` line, its delivery marks
+   included (see **Delivery** in the playbook). Lines marked `~`
    have estimated word timing. With VoiceStudio, a reel in another language times captions better
    with `VOICESTUDIO_LANGUAGE` set (`de`, `es`, …).
 4. **Pace gate.** `npm run check -- <slug>`. Fix every `FAIL` (usually by shortening or splitting
@@ -146,6 +150,22 @@ Writing
 - Spell numbers out in `say` ("one point two seconds") and show digits on screen (`1.2`).
 - End on a CTA shot: one action (follow, comment a keyword, save).
 - Facts must be true. If unsure, write it as opinion or leave it out.
+
+Delivery
+
+A line read in one even breath sounds robotic. Give the voice rhythm with marks in `say`;
+captions never show them, and VoiceStudio records each marked phrase on its own.
+
+- `|` is a beat (0.3 s), `||` a long pause (0.7 s). Put one before a payoff or between two
+  short punches: `It does not make energy. | It borrows it.`
+- `*words*` are said heavy: slower and louder. Use it on the payoff, 1–3 words, at the end of a
+  line or right after a `|`: `Every cup pulls focus | *from tomorrow.*` At most one per line.
+  A single heavy word mid-sentence (`It *borrows* it.`) gets choppy; save that for a hard stop.
+- A `||` at the end of a line holds the silence before the cut, so the line can land.
+- Punctuation shapes the read too: `?` rises, `,` is a breath, `.` ends with a fall.
+- Vary it across the reel: some lines plain, some with a beat, a few with a heavy payoff. The
+  hook is usually plain and fast; the CTA plain.
+- Never on a talking head: its pauses are the user's own.
 
 Staging
 

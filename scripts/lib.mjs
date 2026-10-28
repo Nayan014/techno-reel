@@ -57,20 +57,113 @@ export const hasFilters = (...filters) => {
   return filters.every((name) => new RegExp(`\\s${name}\\s`).test(list));
 };
 
-/** Length of a PCM WAV in seconds. */
-export const wavSeconds = (buffer) => {
+/** A WAV's format fields and its sample bytes. */
+const wavParts = (buffer) => {
   let offset = 12;
-  let byteRate = 0;
+  let format = null;
   while (offset + 8 <= buffer.length) {
     const id = buffer.toString("ascii", offset, offset + 4);
     const size = buffer.readUInt32LE(offset + 4);
-    if (id === "fmt ") byteRate = buffer.readUInt32LE(offset + 16);
-    if (id === "data")
-      return Math.min(size, buffer.length - offset - 8) / byteRate;
+    if (id === "fmt ")
+      format = {
+        code: buffer.readUInt16LE(offset + 8),
+        channels: buffer.readUInt16LE(offset + 10),
+        rate: buffer.readUInt32LE(offset + 12),
+        byteRate: buffer.readUInt32LE(offset + 16),
+        bits: buffer.readUInt16LE(offset + 22),
+      };
+    if (id === "data" && format)
+      return {
+        ...format,
+        data: buffer.subarray(
+          offset + 8,
+          Math.min(buffer.length, offset + 8 + size),
+        ),
+      };
     offset += 8 + size + (size % 2);
   }
   fail("Could not read the WAV");
 };
+
+/** Length of a PCM WAV in seconds. */
+export const wavSeconds = (buffer) => {
+  const { data, byteRate } = wavParts(buffer);
+  return data.length / byteRate;
+};
+
+/** Samples (−1…1) and rate of a mono WAV, 16-bit or 32-bit float. */
+export const readWav = (buffer) => {
+  const { code, channels, rate, bits, data } = wavParts(buffer);
+  const bytes = data.buffer.slice(
+    data.byteOffset,
+    data.byteOffset + data.length,
+  );
+  if (channels === 1 && code === 1 && bits === 16)
+    return {
+      rate,
+      samples: Float32Array.from(new Int16Array(bytes), (x) => x / 32768),
+    };
+  if (channels === 1 && code === 3 && bits === 32)
+    return { rate, samples: new Float32Array(bytes) };
+  fail(
+    `Expected a mono 16-bit or float WAV, got ${channels} channel(s), ${bits}-bit`,
+  );
+};
+
+/** A mono 16-bit WAV of `samples` (−1…1). */
+export const writeWav = (samples, rate) => {
+  const header = Buffer.alloc(44);
+  header.write("RIFF", 0, "ascii");
+  header.writeUInt32LE(36 + samples.length * 2, 4);
+  header.write("WAVEfmt ", 8, "ascii");
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(1, 22);
+  header.writeUInt32LE(rate, 24);
+  header.writeUInt32LE(rate * 2, 28);
+  header.writeUInt16LE(2, 32);
+  header.writeUInt16LE(16, 34);
+  header.write("data", 36, "ascii");
+  header.writeUInt32LE(samples.length * 2, 40);
+  const pcm = Int16Array.from(samples, (x) =>
+    Math.round(Math.max(-1, Math.min(1, x)) * 32767),
+  );
+  return Buffer.concat([header, Buffer.from(pcm.buffer)]);
+};
+
+/** Seconds of silence a `|` (a beat) and a `||` (a long pause) put into a line. */
+const PAUSES = { "|": 0.3, "||": 0.7 };
+
+/**
+ * How a line is delivered: its phrases in order, each with the silence before it, and the
+ * silence after the last (`hold`). Marks in `say`: `|` a beat, `||` a long pause, `*words*`
+ * said heavy (slower and louder, as a phrase of their own).
+ */
+export const delivery = (say) => {
+  if ((say.match(/\*/g) ?? []).length % 2)
+    fail(
+      `A * in "${say}" isn't closed. Heavy words go between two: *like this*.`,
+    );
+  const phrases = [];
+  let pause = 0;
+  for (const [, mark, heavy, plain] of say.matchAll(
+    /(\|\|?)|\*([^*]+)\*|([^|*]+)/g,
+  )) {
+    if (mark) {
+      pause += PAUSES[mark];
+      continue;
+    }
+    const text = (heavy ?? plain).trim();
+    if (!text) continue;
+    phrases.push({ text, heavy: heavy !== undefined, pause });
+    pause = 0;
+  }
+  return { phrases, hold: pause };
+};
+
+/** A line without its delivery marks: what's said and what the captions show. */
+export const spokenText = (say) =>
+  say.replace(/[*|]/g, " ").replace(/\s+/g, " ").trim();
 
 export const round = (n) => Math.round(n * 1000) / 1000;
 
@@ -104,13 +197,13 @@ export const voiceStudio = {
     process.env.VOICESTUDIO_API_KEY
       ? { authorization: `Bearer ${process.env.VOICESTUDIO_API_KEY}` }
       : {},
-  running: async () => {
+  running: async (timeout = 1500) => {
     try {
       const res = await fetch(
         `${voiceStudio.url()}/.well-known/voicestudio-speech`,
         {
           headers: voiceStudio.headers(),
-          signal: AbortSignal.timeout(1500),
+          signal: AbortSignal.timeout(timeout),
         },
       );
       return res.ok;
@@ -206,7 +299,9 @@ export const voiceStudio = {
   },
   /** True once the backend answers, starting a local install first if it isn't running. */
   ensure: async () => {
-    if (await voiceStudio.running()) return true;
+    // Patient: a VoiceStudio busy loading a model answers late, and starting a second one on
+    // its port would fail. Nothing listening is refused at once, so this costs nothing then.
+    if (await voiceStudio.running(15_000)) return true;
     if (!voiceStudio.canStart()) return false;
     try {
       await voiceStudio.start();
@@ -220,21 +315,16 @@ export const voiceStudio = {
 };
 
 /**
- * The voice engine to use: VOICE_PROVIDER when set, otherwise the first available of
- * VoiceStudio (running, or started from its install) → ElevenLabs (key set) → macOS `say`.
- * Null when none is.
+ * The voice engine: VOICE_PROVIDER, VoiceStudio by default. There is no fallback: when
+ * VoiceStudio can't be reached the voice step stops, so no reel gets a voice nobody picked.
  */
-export const pickVoiceProvider = async () => {
-  const wanted = (process.env.VOICE_PROVIDER || "auto").toLowerCase();
-  if (wanted !== "auto") {
-    if (!VOICE_PROVIDERS.includes(wanted))
-      fail(`VOICE_PROVIDER must be auto, ${VOICE_PROVIDERS.join(", ")}`);
-    return wanted;
-  }
-  if (await voiceStudio.ensure()) return "voicestudio";
-  if (process.env.ELEVENLABS_API_KEY) return "elevenlabs";
-  if (process.platform === "darwin") return "say";
-  return null;
+export const pickVoiceProvider = () => {
+  const wanted = (process.env.VOICE_PROVIDER || "voicestudio").toLowerCase();
+  // "auto" once meant VoiceStudio → ElevenLabs → say; older .env files still have it.
+  if (wanted === "auto") return "voicestudio";
+  if (!VOICE_PROVIDERS.includes(wanted))
+    fail(`VOICE_PROVIDER must be ${VOICE_PROVIDERS.join(", ")}`);
+  return wanted;
 };
 
 /** Bundles the project once and resolves the Reel composition for `slug`. */

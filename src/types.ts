@@ -11,7 +11,10 @@ export type Layout = "full" | "punch" | "split" | "graphic";
 /** One spoken line is one shot. Claude writes these into script.json. */
 export type ScriptShot = {
   id: string;
-  /** The line. With a take: what you say in `clip`, used for caption spelling. */
+  /**
+   * The line, with optional delivery marks: `|` a beat, `||` a long pause, `*words*` said heavy.
+   * With a take: what you say in `clip`, used for caption spelling.
+   */
   say: string;
   /** Optional on a take's face shots (`full`, `punch`). */
   scene?: string;

@@ -48,8 +48,8 @@ row(
   "Run: npm run sfx",
 );
 
-// Voice engines, in the order the voice step tries them.
-const provider = await pickVoiceProvider();
+// The voice engine: VoiceStudio unless VOICE_PROVIDER names another. No fallback.
+const provider = pickVoiceProvider();
 // Starts a local install that isn't running, exactly as the voice step would.
 const studioUp = await voiceStudio.ensure();
 
@@ -109,17 +109,12 @@ if (env.ELEVENLABS_API_KEY) {
 
 if (provider === "say")
   note(
-    "Voice step will use macOS `say`: free but robotic, with estimated caption timing.",
+    "VOICE_PROVIDER=say: the voice step uses macOS `say`, robotic, with estimated caption timing.",
+    "Remove VOICE_PROVIDER from .env to use VoiceStudio.",
   );
-else if (provider === "voicestudio" && !studioUp) {
-  // Already reported as ✗ above.
-} else if (provider) row(true, `Voice step will use ${provider}`);
-else
-  row(
-    false,
-    "No voice engine",
-    "Open the VoiceStudio app, or add ELEVENLABS_API_KEY to .env",
-  );
+// A VoiceStudio that isn't answering is already reported as ✗ above.
+else if (provider !== "voicestudio" || studioUp)
+  row(true, `Voice step will use ${provider}`);
 
 // Talking heads: ffmpeg makes the take, VoiceStudio's speech recognition times its words.
 if (existsSync("node_modules/remotion")) {

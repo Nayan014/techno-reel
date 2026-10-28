@@ -7,7 +7,15 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { poseName } from "../src/poses.ts";
 import { FPS, buildReel } from "../src/timeline.ts";
-import { loadEnv, readJson, reelArgs, voiceStudio } from "./lib.mjs";
+import {
+  delivery,
+  loadEnv,
+  pickVoiceProvider,
+  readJson,
+  reelArgs,
+  spokenText,
+  voiceStudio,
+} from "./lib.mjs";
 
 loadEnv();
 const { slug, dir } = reelArgs("npm run plan -- <slug> [--frames]");
@@ -28,26 +36,24 @@ const take = Boolean(script.take);
 const print = script.style === "print";
 const host = print && !take && script.host !== false;
 
-const seconds = (shot, i) =>
-  reel
-    ? reel.shots[i].frames / FPS
-    : shot.clip
-      ? shot.clip[1] - shot.clip[0]
-      : shot.say.split(/\s+/).filter(Boolean).length / WORDS_PER_SECOND;
+const seconds = (shot, i) => {
+  if (reel) return reel.shots[i].frames / FPS;
+  if (shot.clip) return shot.clip[1] - shot.clip[0];
+  const { phrases, hold } = delivery(shot.say);
+  const pauses = phrases.reduce((sum, phrase) => sum + phrase.pause, hold);
+  return spokenText(shot.say).split(" ").length / WORDS_PER_SECOND + pauses;
+};
 const approx = reel ? "" : "≈";
 const total = script.shots.reduce((sum, shot, i) => sum + seconds(shot, i), 0);
 
 const voiceLabel = () => {
   if (take) return "your take";
   if (reel) return `${voice.provider} · ${voice.voice}`;
-  const wanted = (process.env.VOICE_PROVIDER || "auto").toLowerCase();
-  return (
-    {
-      voicestudio: `voicestudio · ${voiceStudio.model()}/${voiceStudio.voice()}`,
-      elevenlabs: "elevenlabs",
-      say: "macOS say",
-    }[wanted] ?? "auto: VoiceStudio → ElevenLabs → say"
-  );
+  return {
+    voicestudio: `voicestudio · ${voiceStudio.model()}/${voiceStudio.voice()}`,
+    elevenlabs: "elevenlabs",
+    say: "macOS say",
+  }[pickVoiceProvider()];
 };
 
 const esc = (value) =>

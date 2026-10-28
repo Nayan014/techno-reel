@@ -1,5 +1,6 @@
 // Records one audio file per shot and writes voice.json with word timings.
-// Engine: VoiceStudio (local) → ElevenLabs → macOS say; see VOICE_PROVIDER in .env.example.
+// Engine: VoiceStudio (local), or the one VOICE_PROVIDER names; it never falls back to another.
+// Delivery marks in a line (`|`, `||`, `*heavy*`) shape its pauses and weight; see delivery().
 // Lines whose text hasn't changed are reused, so re-running is free.
 // A talking head (script.json has "take") records nothing: each shot's `clip` is cut from
 // the take and timed from transcript.json.
@@ -18,15 +19,24 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  delivery,
   fail,
   loadEnv,
   pickVoiceProvider,
   readJson,
+  readWav,
   reelArgs,
   round,
+  spokenText,
   voiceStudio,
   wavSeconds,
+  writeWav,
 } from "./lib.mjs";
+
+/** A heavy phrase is said this much slower and louder (capped below clipping). */
+const HEAVY = { speed: 0.85, gain: 1.25 };
+/** Silence between two phrases with no pause mark between them (around a heavy phrase). */
+const JOIN = 0.04;
 
 loadEnv();
 const env = process.env;
@@ -39,11 +49,7 @@ if (script.take) {
   process.exit(0);
 }
 
-const provider = await pickVoiceProvider();
-if (!provider)
-  fail(
-    "No voice engine. Open the VoiceStudio app, or add ELEVENLABS_API_KEY to .env.",
-  );
+const provider = pickVoiceProvider();
 const engine = await {
   voicestudio: useVoiceStudio,
   elevenlabs: useElevenLabs,
@@ -69,8 +75,8 @@ for (const [i, shot] of script.shots.entries()) {
     .slice(0, 8);
   const audio = `reels/${slug}/audio/${shot.id}-${hash}.${engine.ext}`;
   const context = {
-    previous: script.shots[i - 1]?.say,
-    next: script.shots[i + 1]?.say,
+    previous: script.shots[i - 1] && spokenText(script.shots[i - 1].say),
+    next: script.shots[i + 1] && spokenText(script.shots[i + 1].say),
   };
   const speech = await engine.speak(shot.say, audio, context);
   lines[shot.id] = { say: shot.say, audio, ...speech };
@@ -147,12 +153,14 @@ async function useVoiceStudio() {
   const headers = voiceStudio.headers();
   if (!(await voiceStudio.ensure())) {
     fail(
-      `VoiceStudio isn't answering at ${url} and couldn't be started from ${voiceStudio.dir()}. ` +
-        "Set VOICESTUDIO_DIR to its install, or VOICE_PROVIDER=auto to fall back.",
+      `VoiceStudio isn't answering at ${url} and couldn't be started from ${voiceStudio.dir()} ` +
+        "(log: out/voicestudio.log). Nothing was recorded: the kit doesn't fall back to another " +
+        "voice. Get VoiceStudio running and re-run, or pick another engine with VOICE_PROVIDER in .env.",
     );
   }
   const model = voiceStudio.model();
   const voice = voiceStudio.voice();
+  const speed = Number(env.VOICESTUDIO_SPEED) || 1;
   let canTranscribe = true;
 
   // VoiceStudio returns audio only, so its own speech recognition times the words.
@@ -171,36 +179,83 @@ async function useVoiceStudio() {
     }
   };
 
+  const synthesize = async (text, pace) => {
+    const res = await fetch(`${url}/v1/audio/speech`, {
+      method: "POST",
+      headers: { ...headers, "content-type": "application/json" },
+      body: JSON.stringify({
+        model,
+        voice,
+        input: text,
+        response_format: "wav",
+        speed: pace,
+      }),
+    });
+    if (!res.ok)
+      fail(`VoiceStudio ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    return readWav(Buffer.from(await res.arrayBuffer()));
+  };
+
   return {
     voice: `${model}/${voice}`,
     ext: "wav",
-    async speak(text, audio) {
-      const body = { model, voice, input: text, response_format: "wav" };
-      if (env.VOICESTUDIO_SPEED) body.speed = Number(env.VOICESTUDIO_SPEED);
-      const res = await fetch(`${url}/v1/audio/speech`, {
-        method: "POST",
-        headers: { ...headers, "content-type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok)
-        fail(`VoiceStudio ${res.status}: ${(await res.text()).slice(0, 300)}`);
-      const wav = Buffer.from(await res.arrayBuffer());
+    async speak(say, audio) {
+      // Each phrase is spoken on its own, so a pause is exactly as long as its mark says and
+      // a heavy phrase gets its own slower, weightier read; then they're joined into one line.
+      const { phrases, hold } = delivery(say);
+      let rate = 24000;
+      const pieces = [];
+      for (const [i, phrase] of phrases.entries()) {
+        const spoken = await synthesize(
+          phrase.text,
+          phrase.heavy ? speed * HEAVY.speed : speed,
+        );
+        rate = spoken.rate;
+        let samples = trimSilence(spoken.samples, rate);
+        if (phrase.heavy) {
+          const peak = samples.reduce((max, x) => Math.max(max, Math.abs(x)), 0);
+          const gain = Math.min(HEAVY.gain, 0.98 / (peak || 1));
+          samples = samples.map((x) => x * gain);
+        }
+        pieces.push(silence(phrase.pause || (i ? JOIN : 0), rate), samples);
+      }
+      pieces.push(silence(hold, rate));
+      const line = new Float32Array(
+        pieces.reduce((sum, piece) => sum + piece.length, 0),
+      );
+      let at = 0;
+      for (const piece of pieces) {
+        line.set(piece, at);
+        at += piece.length;
+      }
+      const wav = writeWav(line, rate);
       writeFileSync(join("public", audio), wav);
-      const length = wavSeconds(wav);
+
+      // Every phrase is trimmed to its sound, so the line ends where its audio does.
+      const end = round(line.length / rate);
+      const words = tokenize(say);
       const heard = await transcribe(wav);
       if (!heard?.length)
-        return {
-          end: length,
-          words: spread(tokenize(text), 0, length),
-          estimated: true,
-        };
-      // Trim trailing silence, with a little room so the last syllable isn't clipped.
-      return {
-        end: round(Math.min(length, heard.at(-1).end + 0.15)),
-        words: alignWords(tokenize(text), heard),
-      };
+        return { end, words: spread(words, 0, end), estimated: true };
+      return { end, words: alignWords(words, heard) };
     },
   };
+}
+
+/** Cuts the silence around a phrase, keeping a little so no first or last sound is clipped. */
+function trimSilence(samples, rate) {
+  const audible = (x) => Math.abs(x) > 0.01;
+  const first = samples.findIndex(audible);
+  if (first < 0) return samples;
+  const last = samples.findLastIndex(audible);
+  return samples.slice(
+    Math.max(0, first - Math.round(0.03 * rate)),
+    Math.min(samples.length, last + Math.round(0.06 * rate)),
+  );
+}
+
+function silence(seconds, rate) {
+  return new Float32Array(Math.round(seconds * rate));
 }
 
 async function useElevenLabs() {
@@ -216,7 +271,9 @@ async function useElevenLabs() {
   return {
     voice,
     ext: "mp3",
-    async speak(text, audio, context) {
+    async speak(say, audio, context) {
+      // ElevenLabs reads the plain line; delivery marks are VoiceStudio's.
+      const text = spokenText(say);
       const res = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${voice}/with-timestamps?output_format=mp3_44100_128`,
         {
@@ -263,7 +320,8 @@ async function useSay() {
   return {
     voice: env.SAY_VOICE || "default",
     ext: "wav",
-    async speak(text, audio) {
+    async speak(say, audio) {
+      const text = spokenText(say);
       // Text goes in through a file: `say` never exits when fed stdin, and a line may start with "-".
       const textFile = join(
         mkdtempSync(join(tmpdir(), "reel-say-")),
@@ -288,8 +346,8 @@ async function useSay() {
 }
 
 
-function tokenize(text) {
-  return text.split(/\s+/).filter(Boolean);
+function tokenize(say) {
+  return spokenText(say).split(" ").filter(Boolean);
 }
 
 function normalize(token) {
