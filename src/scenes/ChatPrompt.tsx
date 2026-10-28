@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
-import { BrandIcon } from "../components/BrandIcons";
+import { Logo, useMonoLogo } from "../components/Logo";
 import { Card, Sfx, fitText, useFloat, usePop } from "../components/ui";
 import { useShot, useTheme } from "../context";
 
@@ -13,7 +13,7 @@ type Props = {
   kicker?: string;
   /** The chat app's name in the header. Default "Chat". */
   app?: string;
-  /** A BrandIcon name for the header ("chatgpt", "claude", "gemini"…); else the app's initial. */
+  /** The app's logo in the header, a path under public/ ("reels/<slug>/icons/openai.svg"); else its initial. */
   icon?: string;
 };
 
@@ -36,6 +36,8 @@ export const ChatPrompt: React.FC<Props> = ({
   const cardPop = usePop(0);
   const tagPop = usePop(6, { damping: 10 });
   const float = useFloat(6, 85);
+  const mono = useMonoLogo(icon);
+  const colorLogo = icon && !mono;
 
   const typeTo = Math.max(TYPE_FROM + 15, shot.frames - 18);
   const typed = Math.floor(
@@ -89,7 +91,9 @@ export const ChatPrompt: React.FC<Props> = ({
               width: 60,
               height: 60,
               borderRadius: 16,
-              background: theme.accent,
+              // A colour logo sits on card, never on the accent it could clash with.
+              background: colorLogo ? theme.card : theme.accent,
+              border: colorLogo ? theme.edge(3) : undefined,
               color: theme.card,
               display: "flex",
               alignItems: "center",
@@ -100,7 +104,7 @@ export const ChatPrompt: React.FC<Props> = ({
             }}
           >
             {icon ? (
-              <BrandIcon name={icon} size={38} color={theme.card} />
+              <Logo src={icon} size={38} tint={mono ? theme.card : undefined} />
             ) : (
               app.charAt(0).toUpperCase()
             )}

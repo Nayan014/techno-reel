@@ -1,11 +1,12 @@
 import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { BrandIcon } from "../components/BrandIcons";
+import { Logo, useMonoLogo } from "../components/Logo";
 import { Sfx, cueFrames, fitText, usePop } from "../components/ui";
 import { useShot, useTheme } from "../context";
 
 export type SwarmItem = {
   name: string;
+  /** A logo path under public/, shown above the name. */
   icon?: string;
 };
 
@@ -18,7 +19,7 @@ type Props = {
   count?: number;
   /** Spoken word that sets the nodes off; default "swarm". */
   cue?: string;
-  /** Specific items to show with names and company brand icons. */
+  /** Named nodes instead of `count`: names, or `{ name, icon }` with a product's logo. */
   items?: Array<SwarmItem | string>;
 };
 
@@ -46,7 +47,7 @@ export const Swarm: React.FC<Props> = ({
   const c = BOX / 2;
 
   const resolvedItems: SwarmItem[] = items
-    ? items.map((it) => (typeof it === "string" ? { name: it, icon: it } : it))
+    ? items.map((it) => (typeof it === "string" ? { name: it } : it))
     : [];
 
   const nodeCount = resolvedItems.length > 0 ? resolvedItems.length : (count ?? 8);
@@ -167,6 +168,7 @@ const Agent: React.FC<{
   const frame = useCurrentFrame();
   const theme = useTheme();
   const s = usePop(at, { damping: 10 });
+  const mono = useMonoLogo(icon);
   const blink = (frame + at * 7) % 70 < 3 ? 0.15 : 1;
   const width = name ? 134 : NODE;
   const height = name ? 108 : NODE;
@@ -193,7 +195,7 @@ const Agent: React.FC<{
       }}
     >
       {icon ? (
-        <BrandIcon name={icon} size={40} />
+        <Logo src={icon} size={40} tint={mono ? theme.ink : undefined} />
       ) : (
         <div style={{ display: "flex", gap: 16 }}>
           {[0, 1].map((eye) => (

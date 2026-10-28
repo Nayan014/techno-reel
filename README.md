@@ -338,8 +338,9 @@ Makes the video at `out/<name>/<name>.mp4`.
 | `CTA`        | 👉 the ending: "Follow" button                  |
 
 Every shot type works in both looks: `"style": "flat"` (bold outlines) or `"style": "print"`
-(cut paper with a little presenter). `Statement`, `ChatPrompt`, `List` and `Swarm` can show an
-AI tool's logo (ChatGPT, Claude, Copilot, Gemini, Grok, Cursor) with `"icon"`.
+(cut paper with a little presenter). `Statement`, `ChatPrompt`, `List` and `Swarm` can show the
+logo of the product a shot is about (ChatGPT, Claude, Gemini, Cursor…) with `"icon"`. Claude
+fetches the current official logo for each reel into the reel's folder, so the kit stores none.
 
 Claude can also make new shot types when none fits. Those stay on your Mac in
 `src/scenes/local/`, never in git, unless you ask to add one to the kit.

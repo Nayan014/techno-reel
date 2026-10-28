@@ -1,11 +1,12 @@
 import React from "react";
 import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
-import { BrandIcon } from "../components/BrandIcons";
+import { Logo, useMonoLogo } from "../components/Logo";
 import { Card, Sfx, cueFrames, fitText, usePop } from "../components/ui";
 import { useShot, useTheme } from "../context";
 
 export type ListItem = {
   text: string;
+  /** A logo path under public/, shown instead of the number. */
   icon?: string;
 };
 
@@ -90,6 +91,8 @@ const Row: React.FC<{
   const theme = useTheme();
   const s = usePop(at);
   const size = fitText(text, 560, 2, [52, 46, 40], 0.62);
+  const mono = useMonoLogo(icon);
+  const colorLogo = icon && !mono;
   return (
     <div
       style={{
@@ -106,7 +109,8 @@ const Row: React.FC<{
           height: 104,
           flexShrink: 0,
           borderRadius: 999,
-          background: theme.accent,
+          // A colour logo sits on card, never on the accent it could clash with.
+          background: colorLogo ? theme.card : theme.accent,
           border: theme.edge(6),
           boxShadow: theme.shadow(6),
           display: "flex",
@@ -118,7 +122,7 @@ const Row: React.FC<{
         }}
       >
         {icon ? (
-          <BrandIcon name={icon} size={54} color={theme.card} />
+          <Logo src={icon} size={54} tint={mono ? theme.card : undefined} />
         ) : (
           index + 1
         )}

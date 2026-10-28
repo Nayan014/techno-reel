@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate } from "remotion";
-import { BrandIcon } from "../components/BrandIcons";
+import { Logo, useMonoLogo } from "../components/Logo";
 import { Card, Sfx, fitText, useFloat, usePop } from "../components/ui";
 import { useTheme } from "../context";
 
@@ -9,7 +9,7 @@ type Props = {
   text: string;
   /** Small tag above the card ("the hook", "plot twist", "step 2"). */
   kicker?: string;
-  /** Optional brand icon identifier. */
+  /** A product's logo above the text, a path under public/ ("reels/<slug>/icons/openai.svg"). */
   icon?: string;
 };
 
@@ -19,6 +19,7 @@ export const Statement: React.FC<Props> = ({ text, kicker, icon }) => {
   const card = usePop(0);
   const tag = usePop(7, { damping: 10 });
   const float = useFloat(8, 90);
+  const mono = useMonoLogo(icon);
   const size = fitText(
     text.toUpperCase(),
     740,
@@ -38,7 +39,7 @@ export const Statement: React.FC<Props> = ({ text, kicker, icon }) => {
       <Card style={{ padding: "64px 56px 56px", maxWidth: 880 }}>
         {icon && (
           <div style={{ marginBottom: 20 }}>
-            <BrandIcon name={icon} size={72} />
+            <Logo src={icon} size={72} tint={mono ? theme.ink : undefined} />
           </div>
         )}
         <div

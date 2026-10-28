@@ -81,6 +81,8 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
    `music` is a bed under the voice that dips while a line is spoken: `lofi`, `upbeat`, `chill`
    or `funk`, picked to fit the topic. Leave it out when the user says no music, will add
    Instagram audio themselves, or on a talking head whose take already has music or noise.
+   When a shot is about a product (ChatGPT, Claude, Cursor…), follow the `brand-logos` skill
+   (`.claude/skills/brand-logos/SKILL.md`) to fetch its current logo, and set the shot's `icon`.
 3. **Voice.** `npm run voice -- <slug>`. Writes `voice.json` and one audio file per shot.
    Unchanged lines are cached, so re-run it after every edit to a `say` line. Lines marked `~`
    have estimated word timing. With VoiceStudio, a reel in another language times captions better
@@ -159,10 +161,10 @@ Staging
 | scene       | use for                | props                                                                       |
 | ----------- | ---------------------- | --------------------------------------------------------------------------- |
 | `Hook`      | shot one               | `lines: string[]` (1–3 short lines), `highlight?: string`                   |
-| `Statement` | one big idea on a card | `text` (≤ 8 words), `kicker?` (small tag), `icon?`                          |
-| `ChatPrompt` | asking an AI something | `prompt` (typed in over the shot), `title?`, `kicker?`, `app?` (default "Chat"), `icon?` |
+| `Statement` | one big idea on a card | `text` (≤ 8 words), `kicker?` (small tag), `icon?` (logo path)              |
+| `ChatPrompt` | asking an AI something | `prompt` (typed in over the shot), `title?`, `kicker?`, `app?` (default "Chat"), `icon?` (logo path) |
 | `BigNumber` | a stat that counts up  | `value: number`, `label`, `prefix?`, `suffix?`, `decimals?`, `locale?`      |
-| `List`      | 2–4 steps or rules     | `title?`, `items`: strings or `{text, icon?}` (each pops in when its first word is spoken; an icon replaces the number) |
+| `List`      | 2–4 steps or rules     | `title?`, `items`: strings or `{text, icon?}` (each pops in when its first word is spoken; a logo `icon` replaces the number) |
 | `Compare`   | this vs that           | `left: {label, value}`, `right: {label, value}`, `winner?: "left"\|"right"` |
 | `Meter`     | something building up  | `label`, `top?`, `bottom?` (scale ends), `level?` (0–1, default 0.9)        |
 | `Swarm`     | one spawns many        | `title?`, `lead?` (centre label), `count?` (3–12) or `items` (strings or `{name, icon?}`), `cue?` (word that spawns them, default "swarm") |
@@ -171,9 +173,11 @@ Staging
 
 Every shot also takes `"captions": false` to hide the word-by-word captions.
 
-`icon` is a logo from `src/components/BrandIcons.tsx`: `chatgpt`/`openai`, `codex`, `claude`/
-`anthropic`, `copilot`, `gemini`, `grok`/`xai`/`x`, `cursor`. Use one only when the shot is about
-that product.
+`icon` is a path under `public/` to a product's logo, like `Screenshot`'s `src`:
+`"reels/<slug>/icons/chatgpt.svg"`. The kit ships no logos; the `brand-logos` skill fetches the
+current official one into the reel's `icons/` folder. Use one only when the shot is about that
+product, and leave it out when no real logo is found. A black, white or grey SVG is redrawn in the
+theme's colours; a coloured logo or PNG keeps its own.
 
 ### Writing a new scene
 
@@ -190,6 +194,8 @@ add it to the kit, move it to `src/scenes/`, register it there, give it a defaul
 - `body` font from `src/fonts.ts`.
 - `usePop(delay)`, `useFloat()`, `Card`, `Sfx`, `fitText()` and `cueFrames()` from
   `src/components/ui.tsx`.
+- `<Logo src size tint?>` and `useMonoLogo(src)` from `src/components/Logo.tsx` for an `icon`
+  prop: pass `tint` (a theme colour) only when `useMonoLogo` says the logo is mono.
 - `<Sfx name at? volume? variant?>` plays a sound at a frame of the shot. Names (in
   `src/sound.ts`): `whoosh`, `whip` (fast punch-in), `swipe` (paper or card slide), `pop`,
   `click`, `key` (one keystroke), `blip`, `ding`, `impact` (something big lands), `riser`
@@ -212,7 +218,7 @@ Run `npm run typecheck` after.
   by each shot's `layout`.
 - `src/theme.ts`: palettes, the two styles (`makeTheme`) and the safe-area `LAYOUT`.
 - `src/components/`: `Background`, `Captions`, `Host` (print presenter), `Take` (your video),
-  `Music` (the ducked music bed), `BrandIcons` (product logos for `icon` props).
+  `Music` (the ducked music bed), `Logo` (draws a reel's fetched logo for `icon` props).
 - `src/sound.ts`: the sound effect and music names (also used by the scripts).
 - `src/scenes/`: the kit's scenes, registered in `index.ts`. `src/scenes/local/`: scenes for one
   reel, loaded by themselves, ignored by git.
@@ -225,6 +231,7 @@ Run `npm run typecheck` after.
   its source in `scripts/sfx.mjs` and re-run it.
 - `public/sfx/`, `public/music/`: the sounds and music beds, all CC0 (public domain); sources in
   `public/sfx/CREDITS.md`.
+- `.claude/skills/brand-logos/`: how to fetch and check a product's current logo for a reel.
 - `public/reels/`: one folder per reel. Only `example/` is in git; the user's reels stay local.
 - `out/<slug>/`: one folder per reel with `<slug>.mp4`, `caption.txt`, `plan.html` and
   `stills/`. Safe to delete.
