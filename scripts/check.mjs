@@ -1,6 +1,8 @@
 // Pace and structure gate. Fast: reads the JSON, renders nothing. Exits 1 on any FAIL.
 // Usage: npm run check -- <slug>
+import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { HOST_POSES } from "../src/poses.ts";
 import { FPS, buildReel } from "../src/timeline.ts";
 import { readJson, reelArgs } from "./lib.mjs";
 
@@ -71,6 +73,12 @@ if (reel) {
       );
   }
   if (shots.at(-1).scene !== "CTA") warning("Last shot isn't a CTA.");
+  const cartoon = ["host.json", ...HOST_POSES.map((pose) => `${pose}.png`)];
+  const lost = cartoon.filter((file) => !existsSync(join("public", "host", file)));
+  if (script.host === "character" && lost.length)
+    failure(
+      `"host": "character" but public/host/ has no ${lost.join(", ")}. Run: npm run host -- <sheet.png>`,
+    );
   if (/yourhandle/i.test(reel.handle))
     warning(`Handle is still "${reel.handle}".`);
   if (shots.some((shot) => shot.estimated))

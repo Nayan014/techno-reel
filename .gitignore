@@ -35,3 +35,6 @@ Thumbs.db
 
 # Claude Code's per-machine settings
 .claude/settings.local.json
+
+# Your own cartoon host, made by `npm run host` from a picture of you
+public/host/

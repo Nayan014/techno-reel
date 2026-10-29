@@ -11,6 +11,7 @@ import {
 } from "remotion";
 import { Background } from "./components/Background";
 import { Captions } from "./components/Captions";
+import { Character } from "./components/Character";
 import { Cut } from "./components/Cut";
 import { Handle } from "./components/Handle";
 import { Host } from "./components/Host";
@@ -32,8 +33,10 @@ export type ReelProps = {
 export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
   if (!reel) throw new Error(`Reel "${slug}" was not loaded`);
   const theme = makeTheme(reel.palette, reel.style);
-  // On a talking head you are the host.
-  const host = theme.style === "print" && !reel.take && reel.host !== false;
+  // On a talking head you are the host. Your own cartoon hosts in either style, the paper one in print.
+  const host =
+    !reel.take &&
+    (reel.host === "character" || (theme.style === "print" && reel.host !== false));
   return (
     <ThemeContext.Provider value={theme}>
       <AbsoluteFill style={{ fontFamily: body, color: theme.ink }}>
@@ -55,7 +58,12 @@ export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
             />
           </Sequence>
         ))}
-        {host && <Host shots={reel.shots} />}
+        {host &&
+          (reel.character ? (
+            <Character shots={reel.shots} config={reel.character} />
+          ) : (
+            <Host shots={reel.shots} />
+          ))}
         {reel.music && <Music name={reel.music} shots={reel.shots} />}
         <Handle text={reel.handle} />
       </AbsoluteFill>

@@ -21,6 +21,11 @@ write the reel in it too.
   `"host": false` hides the host. A shot's `pose` overrides its default: `idle`, `point`,
   `present`, `think`, `shrug`, `shock`, `cheer`, `wave`.
 
+`"host": "character"` puts the user's own cartoon in place of the paper host, in either style,
+with the same poses. It's made once from their photo with the `cartoon-host` skill
+(`.claude/skills/cartoon-host/SKILL.md`) and kept in `public/host/`. Offer it when the user wants
+a host that looks like them.
+
 
 ## First run
 
@@ -268,20 +273,22 @@ Run `npm run typecheck` after.
 - `src/theme.ts`: palettes, the two styles (`makeTheme`) and the safe-area `LAYOUT`.
 - `src/components/`: `Background`, `Captions`, `Host` (print presenter), `Take` (your video),
   `Music` (the ducked music bed), `Logo` (draws a reel's fetched logo for `icon` props), `Cut`
-  (the wipe at each cut).
+  (the wipe at each cut), `Character` (the user's own cartoon host).
 - `src/sound.ts`: the sound effect and music names (also used by the scripts).
 - `src/scenes/`: the kit's scenes, registered in `index.ts`. `src/scenes/local/`: scenes for one
   reel, loaded by themselves, ignored by git.
 - `src/timeline.ts`: joins `script.json` and `voice.json` into timed shots (also used by the scripts).
 - `src/poses.ts`: the print host's poses and each scene's default (also used by `plan`).
 - `src/components/Captions.tsx`: word-by-word captions.
-- `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `check`, `plan`, `stills`, `render`, `pace`, `sfx`
-  (downloads the CC0 sources, masters them into `public/sfx/` and `public/music/`, writes
-  `public/sfx/CREDITS.md` and an audition page at `out/sfx/index.html`). To swap a sound, change
-  its source in `scripts/sfx.mjs` and re-run it.
+- `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `host`, `check`, `plan`, `stills`, `render`,
+  `pace`, `sfx` (downloads the CC0 sources, masters them into `public/sfx/` and `public/music/`,
+  writes `public/sfx/CREDITS.md` and an audition page at `out/sfx/index.html`). To swap a sound,
+  change its source in `scripts/sfx.mjs` and re-run it.
 - `public/sfx/`, `public/music/`: the sounds and music beds, all CC0 (public domain); sources in
   `public/sfx/CREDITS.md`.
 - `.claude/skills/brand-logos/`: how to fetch and check a product's current logo for a reel.
+- `.claude/skills/cartoon-host/`: how to turn the user's photo into their own cartoon host.
+- `public/host/`: the user's cartoon, one PNG per pose and `host.json`; ignored by git.
 - `public/reels/`: one folder per reel. Only `example/` is in git; the user's reels stay local.
 - `out/<slug>/`: one folder per reel with `<slug>.mp4`, `caption.txt`, `plan.html` and
   `stills/`. Safe to delete.

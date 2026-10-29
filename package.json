@@ -14,6 +14,7 @@
     "sfx": "node scripts/sfx.mjs",
     "transcribe": "node scripts/transcribe.mjs",
     "voice": "node scripts/voice.mjs",
+    "host": "node scripts/host.mjs",
     "check": "node scripts/check.mjs",
     "plan": "node scripts/plan.mjs",
     "stills": "node scripts/stills.mjs",

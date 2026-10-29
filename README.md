@@ -267,6 +267,22 @@ Ask Claude if you want to switch.
 
 ---
 
+## 🧑‍🎨 Your own cartoon host
+
+The print look comes with a little paper presenter. You can swap it for a cartoon of **you**, in
+either look. Ask Claude for `my own cartoon host`; it walks you through it:
+
+1. 📸 Pick one clear photo of your face, in good light.
+2. 🎨 Paste Claude's prompt into an image AI that takes a photo (Canva, ChatGPT, Gemini…). You
+   get one picture with 8 poses of your cartoon on a pink background.
+3. ✂️ Claude cuts it out with `npm run host -- <picture>` and sets where each mouth is.
+4. 🎬 Every reel with `"host": "character"` now stars your cartoon. It changes pose on every
+   shot and its mouth moves with the voice.
+
+Your cartoon stays on your Mac in `public/host/`, never in git. Claude never uploads your photo.
+
+---
+
 ## 🩺 If something goes wrong
 
 First, run the check:

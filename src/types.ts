@@ -37,8 +37,9 @@ export type Script = {
   /** Default "flat". */
   style?: StyleName;
   handle: string;
-  /** Print style: false hides the paper host. */
-  host?: boolean;
+  /** Print style: false hides the paper host. "character": your own cartoon (`npm run host`)
+   * hosts instead, in either style. */
+  host?: boolean | "character";
   /** Music bed under the reel, dipped while a line is spoken. None when left out. */
   music?: MusicName | false;
   /** Talking head: your recording, made by `npm run transcribe` (always "take.mp4"). */
@@ -75,7 +76,17 @@ export type Voice = {
 
 export type Shot = ScriptShot & VoiceLine & { from: number; frames: number };
 
+/** public/host/host.json, written by `npm run host`: where each pose of your cartoon has its mouth. */
+export type CharacterConfig = {
+  /** Width of the mouth, as a share of the pose image's width. */
+  mouthWidth: number;
+  /** Centre of each pose's closed mouth, [x, y] as 0–1 of the image. */
+  mouth: Record<string, [number, number]>;
+};
+
 export type ReelData = Omit<Script, "shots"> & {
   shots: Shot[];
   durationInFrames: number;
+  /** Set when the reel is hosted by your own cartoon. */
+  character?: CharacterConfig;
 };
