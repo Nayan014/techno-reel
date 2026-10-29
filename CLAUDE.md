@@ -15,8 +15,9 @@ write the reel in it too.
 
 - `flat` (default): bold outlines, hard shadows, dot grid, Anton headlines.
 - `print`: a cut-paper studio. Grainy lit card stock, soft depth, paper-strip captions that
-  fill in word by word, and a paper host standing bottom left who changes pose every shot.
-  Pick it for tips, explainers and lists, or when the user asks for paper, print or a host.
+  fill in word by word, and a paper host standing bottom left who changes pose every shot and
+  lip-syncs to the voice. Pick it for tips, explainers and lists, or when the user asks for
+  paper, print or a host.
   `"host": false` hides the host. A shot's `pose` overrides its default: `idle`, `point`,
   `present`, `think`, `shrug`, `shock`, `cheer`, `wave`.
 
