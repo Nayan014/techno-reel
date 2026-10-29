@@ -261,12 +261,14 @@ Run `npm run typecheck` after.
 
 ## Files
 
-- `src/Reel.tsx`: lays shots end to end, adds voice, captions, a whoosh between shots (a paper
-  swipe in print), the music bed, handle, the print host, and on a talking head the take framed
-  by each shot's `layout`.
+- `src/Reel.tsx`: lays shots end to end, adds voice, captions, a whoosh and a wipe between shots
+  (glitch bars in flat, a paper swipe and halftone dots in print), each shot's snap `zoom`, the
+  music bed, handle, the print host, and on a talking head the take framed by each shot's
+  `layout`.
 - `src/theme.ts`: palettes, the two styles (`makeTheme`) and the safe-area `LAYOUT`.
 - `src/components/`: `Background`, `Captions`, `Host` (print presenter), `Take` (your video),
-  `Music` (the ducked music bed), `Logo` (draws a reel's fetched logo for `icon` props).
+  `Music` (the ducked music bed), `Logo` (draws a reel's fetched logo for `icon` props), `Cut`
+  (the wipe at each cut).
 - `src/sound.ts`: the sound effect and music names (also used by the scripts).
 - `src/scenes/`: the kit's scenes, registered in `index.ts`. `src/scenes/local/`: scenes for one
   reel, loaded by themselves, ignored by git.

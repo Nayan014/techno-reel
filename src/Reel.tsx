@@ -11,6 +11,7 @@ import {
 } from "remotion";
 import { Background } from "./components/Background";
 import { Captions } from "./components/Captions";
+import { Cut } from "./components/Cut";
 import { Handle } from "./components/Handle";
 import { Host } from "./components/Host";
 import { Music } from "./components/Music";
@@ -174,6 +175,7 @@ const ShotView: React.FC<{
         />
       )}
       {snapAt !== undefined && <Sfx name="whip" at={snapAt} volume={0.25} />}
+      {whoosh && <Cut seed={index} />}
     </ShotContext.Provider>
   );
 };
