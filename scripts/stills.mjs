@@ -3,7 +3,7 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { renderStill } from "@remotion/renderer";
-import { openReel, option, reelArgs } from "./lib.mjs";
+import { openReel, option, reelArgs, settledFrame } from "./lib.mjs";
 
 const { slug } = reelArgs("npm run stills -- <slug> [--shot=03] [--scale=0.5]");
 const only = option("shot");
@@ -15,7 +15,7 @@ const { serveUrl, composition, inputProps, reel } = await openReel(slug);
 for (const shot of reel.shots) {
   if (only && shot.id !== only) continue;
   const output = join(outDir, `${shot.id}.png`);
-  const frame = shot.from + Math.max(0, shot.frames - 6);
+  const frame = settledFrame(shot);
   await renderStill({
     serveUrl,
     composition,

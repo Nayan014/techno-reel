@@ -110,7 +110,8 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
    shot, re-render, re-run. A warn in the first 2 s is worth fixing too: that's where people swipe.
 8. **Caption.** Write `out/<slug>/caption.txt`: a 1–2 line post caption in the reel's language,
    a question or CTA, and 3–5 relevant hashtags.
-9. **Hand over.** Tell the user the mp4 and caption paths and how long the reel is. Mention
+9. **Hand over.** Tell the user the mp4, caption and `out/<slug>/cover.png` (the hook as a cover
+   image to pick when posting) paths and how long the reel is. Mention
    `npm run studio` if they want to scrub through it in the browser (set `slug` in the props panel).
 
 ## Talking head

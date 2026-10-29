@@ -124,6 +124,7 @@ make a reel about why coffee makes some people sleepy
 | ------------------------ | -------------------------------------------------- |
 | `out/<name>/<name>.mp4`  | 🎬 the reel                                        |
 | `out/<name>/caption.txt` | 📝 the text for your Instagram post, with hashtags |
+| `out/<name>/cover.png`   | 🖼️ the hook as a cover image for the post          |
 | `out/<name>/stills/`     | 🖼️ one picture per shot, from Claude's check       |
 | `out/<name>/plan.html`   | 🗂️ the plan cards, in plan mode                    |
 
