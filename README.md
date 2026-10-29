@@ -329,6 +329,13 @@ npm run render -- <name>
 
 Makes the video at `out/<name>/<name>.mp4`.
 
+```bash
+npm run pace -- <name>
+```
+
+Watches the finished video and lists every moment where nothing moves. Fix anything marked
+**FAIL** (still for more than 1.2 seconds) and render again.
+
 **The shot types** you can use in `script.json`:
 
 | Shot type    | Shows                                           |

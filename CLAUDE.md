@@ -64,7 +64,7 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
      stills, real durations. Stop. For each change: edit, re-run `voice` if a `say` or `clip`
      changed, `npm run stills -- <slug> --shot=<id>` for every changed shot, then
      `plan --frames`.
-  4. When they approve again: steps 6–8 (Render, Caption, Hand over).
+  4. When they approve again: steps 6–9 (Render, Motion gate, Caption, Hand over).
 
 ## Workflow
 
@@ -105,9 +105,12 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
 
 6. **Render.** `npm run render -- <slug> --draft` for a fast half-size check if you changed a lot,
    then `npm run render -- <slug>` for the final `out/<slug>/<slug>.mp4`.
-7. **Caption.** Write `out/<slug>/caption.txt`: a 1–2 line post caption in the reel's language,
+7. **Motion gate.** `npm run pace -- <slug>` watches the mp4 and lists every stretch where nothing
+   on screen changes. Fix every `FAIL` (still over 1.2 s) with a pop, a cue, a zoom or a shorter
+   shot, re-render, re-run. A warn in the first 2 s is worth fixing too: that's where people swipe.
+8. **Caption.** Write `out/<slug>/caption.txt`: a 1–2 line post caption in the reel's language,
    a question or CTA, and 3–5 relevant hashtags.
-8. **Hand over.** Tell the user the mp4 and caption paths and how long the reel is. Mention
+9. **Hand over.** Tell the user the mp4 and caption paths and how long the reel is. Mention
    `npm run studio` if they want to scrub through it in the browser (set `slug` in the props panel).
 
 ## Talking head
@@ -137,7 +140,7 @@ cut it into a reel instead of writing and voicing one.
    - A scene on a `full` or `punch` shot is laid over the face on a paper veil (good for a Hook).
    - The style applies to the scenes and captions; there is no print host on a talking head.
 4. Then run the normal workflow from **Voice** on: `npm run voice` cuts the clips (instant, no
-   recording), `check`, `stills`, `render`, caption. Re-run `voice` after changing a clip.
+   recording), `check`, `stills`, `render`, `pace`, caption. Re-run `voice` after changing a clip.
 
 ## Playbook
 
@@ -245,7 +248,7 @@ Run `npm run typecheck` after.
 - `src/timeline.ts`: joins `script.json` and `voice.json` into timed shots (also used by the scripts).
 - `src/poses.ts`: the print host's poses and each scene's default (also used by `plan`).
 - `src/components/Captions.tsx`: word-by-word captions.
-- `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `check`, `plan`, `stills`, `render`, `sfx`
+- `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `check`, `plan`, `stills`, `render`, `pace`, `sfx`
   (downloads the CC0 sources, masters them into `public/sfx/` and `public/music/`, writes
   `public/sfx/CREDITS.md` and an audition page at `out/sfx/index.html`). To swap a sound, change
   its source in `scripts/sfx.mjs` and re-run it.

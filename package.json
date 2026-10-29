@@ -18,6 +18,7 @@
     "plan": "node scripts/plan.mjs",
     "stills": "node scripts/stills.mjs",
     "render": "node scripts/render.mjs",
+    "pace": "node scripts/pace.mjs",
     "studio": "remotion studio",
     "typecheck": "tsc --noEmit"
   },
