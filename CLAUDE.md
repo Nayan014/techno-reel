@@ -155,6 +155,26 @@ Writing
 - End on a CTA shot: one action (follow, comment a keyword, save).
 - Facts must be true. If unsure, write it as opinion or leave it out.
 
+Hooks
+
+Pick a shape, fill it with the topic, keep it ≤ 5 words, and stage the shot after it as shown.
+
+| shape         | pattern                       | example                    | next shot              |
+| ------------- | ----------------------------- | -------------------------- | ---------------------- |
+| result first  | My [thing] just [did X].      | My phone just wrote this.  | `Screenshot` of it     |
+| the number    | [Number] [things] [do X].     | Nine in ten skip this.     | `BigNumber`            |
+| free vs paid  | [Thing]: $[X]. Mine: free.    | Course: $400. Mine: free.  | `Compare`              |
+| the annoyance | You paid. Still [annoying X]? | You paid. Still ads?       | the answer, `List`     |
+| the warning   | Don't [act] before this.      | Don't upgrade before this. | `Statement` with why   |
+
+- The payoff is in frame one: a result, a number, a thing doing something surprising. The `Hook`
+  scene is readable from its first frame, and that frame is also the cover.
+- First person, present tense when it's the user's own story: "My…", "I just…".
+- A question hook is answered within the reel, by the shot right after it when possible.
+- When Insights shows a high skip rate (over ~60 %), re-cut only the first 2 s, a new hook line
+  and scene, and keep the body.
+- Never re-post the same body: Instagram marks it as already shared. New voice, new visuals.
+
 Delivery
 
 A line read in one even breath sounds robotic. Give the voice rhythm with marks in `say`;
