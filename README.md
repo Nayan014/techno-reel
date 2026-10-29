@@ -343,6 +343,7 @@ Watches the finished video and lists every moment where nothing moves. Fix anyth
 | ------------ | ----------------------------------------------- |
 | `Hook`       | 🪝 big bold headline, for the first shot        |
 | `Statement`  | 💡 one idea on a tilted card                    |
+| `Stamp`      | 💥 one word slammed down with confetti          |
 | `ChatPrompt` | 💬 a chat box where a prompt types itself in    |
 | `BigNumber`  | 🔢 a number that counts up                      |
 | `List`       | 📋 2–4 numbered points                          |

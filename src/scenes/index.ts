@@ -7,6 +7,7 @@ import { Hook } from "./Hook";
 import { List } from "./List";
 import { Meter } from "./Meter";
 import { Screenshot } from "./Screenshot";
+import { Stamp } from "./Stamp";
 import { Statement } from "./Statement";
 import { Swarm } from "./Swarm";
 
@@ -15,6 +16,7 @@ export const scenes: Record<string, React.ComponentType<any>> = {
   Hook,
   ChatPrompt,
   Statement,
+  Stamp,
   BigNumber,
   List,
   Compare,

@@ -207,6 +207,7 @@ Staging
 | ----------- | ---------------------- | --------------------------------------------------------------------------- |
 | `Hook`      | shot one               | `lines: string[]` (1–3 short lines), `highlight?: string`                   |
 | `Statement` | one big idea on a card | `text` (≤ 8 words), `kicker?` (small tag), `icon?` (logo path)              |
+| `Stamp`     | the payoff word, slammed down | `text` (1–3 words), `kicker?`, `cue?` (spoken word that slams it, default its first word) |
 | `ChatPrompt` | asking an AI something | `prompt` (typed in over the shot), `title?`, `kicker?`, `app?` (default "Chat"), `icon?` (logo path) |
 | `BigNumber` | a stat that counts up  | `value: number`, `label`, `prefix?`, `suffix?`, `decimals?`, `locale?`      |
 | `List`      | 2–4 steps or rules     | `title?`, `items`: strings or `{text, icon?}` (each pops in when its first word is spoken; a logo `icon` replaces the number) |
