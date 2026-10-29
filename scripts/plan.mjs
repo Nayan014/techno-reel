@@ -152,6 +152,7 @@ const card = (shot, i) => {
     );
   }
   if (take && layoutOf(shot) !== "graphic") tools.push(chip("Remotion", `Take · ${layoutOf(shot)}`));
+  if (shot.zoom) tools.push(chip("Remotion", `snap zoom on "${shot.zoom}"`));
   tools.push(chip("Voice", voiceLabel()));
   const props = Object.entries(shot.props ?? {});
   return `<article class="card">

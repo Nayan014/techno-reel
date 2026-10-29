@@ -27,6 +27,8 @@ export type ScriptShot = {
   layout?: Layout;
   /** Print host: what it does on this line. Default depends on the scene. */
   pose?: string;
+  /** A word of the line: the stage snaps in a little when it's said. */
+  zoom?: string;
 };
 
 export type Script = {

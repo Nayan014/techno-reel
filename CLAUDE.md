@@ -217,7 +217,9 @@ Staging
 | `Screenshot` | a real screen or photo | `src` (path under `public/`), `label?`, `focus?: [x, y]` (0–1, where to push in) |
 | `CTA`       | last shot              | `text`, `button?` (default "Follow")                                        |
 
-Every shot also takes `"captions": false` to hide the word-by-word captions.
+Every shot also takes `"captions": false` to hide the word-by-word captions, and `"zoom": "word"`:
+the stage snaps in 6 % with a whip when that word is said. Use it on the payoff word of a shot
+that would otherwise sit still, at most every few shots, or it stops landing.
 
 `icon` is a path under `public/` to a product's logo, like `Screenshot`'s `src`:
 `"reels/<slug>/icons/chatgpt.svg"`. The kit ships no logos; the `brand-logos` skill fetches the
