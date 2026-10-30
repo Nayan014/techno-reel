@@ -117,6 +117,8 @@ export const LAYOUT = {
   hostLeft: 40,
   hostFloor: 1560,
   hostWidth: 210,
+  /** Your own cartoon is drawn from the waist up, so it stands a little wider. */
+  characterWidth: 230,
   captionLeftWithHost: 270,
   /** Talking head, split layout: the scene shrunk on top, your take in a window below. */
   splitStageHeight: 660,

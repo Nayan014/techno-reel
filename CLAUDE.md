@@ -15,10 +15,16 @@ write the reel in it too.
 
 - `flat` (default): bold outlines, hard shadows, dot grid, Anton headlines.
 - `print`: a cut-paper studio. Grainy lit card stock, soft depth, paper-strip captions that
-  fill in word by word, and a paper host standing bottom left who changes pose every shot.
-  Pick it for tips, explainers and lists, or when the user asks for paper, print or a host.
+  fill in word by word, and a paper host standing bottom left who changes pose every shot and
+  lip-syncs to the voice. Pick it for tips, explainers and lists, or when the user asks for
+  paper, print or a host.
   `"host": false` hides the host. A shot's `pose` overrides its default: `idle`, `point`,
   `present`, `think`, `shrug`, `shock`, `cheer`, `wave`.
+
+`"host": "character"` puts the user's own cartoon in place of the paper host, in either style,
+with the same poses. It's made once from their photo with the `cartoon-host` skill
+(`.claude/skills/cartoon-host/SKILL.md`) and kept in `public/host/`. Offer it when the user wants
+a host that looks like them.
 
 
 ## First run
@@ -64,7 +70,7 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
      stills, real durations. Stop. For each change: edit, re-run `voice` if a `say` or `clip`
      changed, `npm run stills -- <slug> --shot=<id>` for every changed shot, then
      `plan --frames`.
-  4. When they approve again: steps 6–8 (Render, Caption, Hand over).
+  4. When they approve again: steps 6–9 (Render, Motion gate, Caption, Hand over).
 
 ## Workflow
 
@@ -105,9 +111,13 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
 
 6. **Render.** `npm run render -- <slug> --draft` for a fast half-size check if you changed a lot,
    then `npm run render -- <slug>` for the final `out/<slug>/<slug>.mp4`.
-7. **Caption.** Write `out/<slug>/caption.txt`: a 1–2 line post caption in the reel's language,
+7. **Motion gate.** `npm run pace -- <slug>` watches the mp4 and lists every stretch where nothing
+   on screen changes. Fix every `FAIL` (still over 1.2 s) with a pop, a cue, a zoom or a shorter
+   shot, re-render, re-run. A warn in the first 2 s is worth fixing too: that's where people swipe.
+8. **Caption.** Write `out/<slug>/caption.txt`: a 1–2 line post caption in the reel's language,
    a question or CTA, and 3–5 relevant hashtags.
-8. **Hand over.** Tell the user the mp4 and caption paths and how long the reel is. Mention
+9. **Hand over.** Tell the user the mp4, caption and `out/<slug>/cover.png` (the hook as a cover
+   image to pick when posting) paths and how long the reel is. Mention
    `npm run studio` if they want to scrub through it in the browser (set `slug` in the props panel).
 
 ## Talking head
@@ -137,7 +147,7 @@ cut it into a reel instead of writing and voicing one.
    - A scene on a `full` or `punch` shot is laid over the face on a paper veil (good for a Hook).
    - The style applies to the scenes and captions; there is no print host on a talking head.
 4. Then run the normal workflow from **Voice** on: `npm run voice` cuts the clips (instant, no
-   recording), `check`, `stills`, `render`, caption. Re-run `voice` after changing a clip.
+   recording), `check`, `stills`, `render`, `pace`, caption. Re-run `voice` after changing a clip.
 
 ## Playbook
 
@@ -150,6 +160,26 @@ Writing
 - Spell numbers out in `say` ("one point two seconds") and show digits on screen (`1.2`).
 - End on a CTA shot: one action (follow, comment a keyword, save).
 - Facts must be true. If unsure, write it as opinion or leave it out.
+
+Hooks
+
+Pick a shape, fill it with the topic, keep it ≤ 5 words, and stage the shot after it as shown.
+
+| shape         | pattern                       | example                    | next shot              |
+| ------------- | ----------------------------- | -------------------------- | ---------------------- |
+| result first  | My [thing] just [did X].      | My phone just wrote this.  | `Screenshot` of it     |
+| the number    | [Number] [things] [do X].     | Nine in ten skip this.     | `BigNumber`            |
+| free vs paid  | [Thing]: $[X]. Mine: free.    | Course: $400. Mine: free.  | `Compare`              |
+| the annoyance | You paid. Still [annoying X]? | You paid. Still ads?       | the answer, `List`     |
+| the warning   | Don't [act] before this.      | Don't upgrade before this. | `Statement` with why   |
+
+- The payoff is in frame one: a result, a number, a thing doing something surprising. The `Hook`
+  scene is readable from its first frame, and that frame is also the cover.
+- First person, present tense when it's the user's own story: "My…", "I just…".
+- A question hook is answered within the reel, by the shot right after it when possible.
+- When Insights shows a high skip rate (over ~60 %), re-cut only the first 2 s, a new hook line
+  and scene, and keep the body.
+- Never re-post the same body: Instagram marks it as already shared. New voice, new visuals.
 
 Delivery
 
@@ -182,6 +212,7 @@ Staging
 | ----------- | ---------------------- | --------------------------------------------------------------------------- |
 | `Hook`      | shot one               | `lines: string[]` (1–3 short lines), `highlight?: string`                   |
 | `Statement` | one big idea on a card | `text` (≤ 8 words), `kicker?` (small tag), `icon?` (logo path)              |
+| `Stamp`     | the payoff word, slammed down | `text` (1–3 words), `kicker?`, `cue?` (spoken word that slams it, default its first word; end the line with `||` when it's the last word, so it can land) |
 | `ChatPrompt` | asking an AI something | `prompt` (typed in over the shot), `title?`, `kicker?`, `app?` (default "Chat"), `icon?` (logo path) |
 | `BigNumber` | a stat that counts up  | `value: number`, `label`, `prefix?`, `suffix?`, `decimals?`, `locale?`      |
 | `List`      | 2–4 steps or rules     | `title?`, `items`: strings or `{text, icon?}` (each pops in when its first word is spoken; a logo `icon` replaces the number) |
@@ -191,7 +222,9 @@ Staging
 | `Screenshot` | a real screen or photo | `src` (path under `public/`), `label?`, `focus?: [x, y]` (0–1, where to push in) |
 | `CTA`       | last shot              | `text`, `button?` (default "Follow")                                        |
 
-Every shot also takes `"captions": false` to hide the word-by-word captions.
+Every shot also takes `"captions": false` to hide the word-by-word captions, and `"zoom": "word"`:
+the stage snaps in 6 % with a whip when that word is said. Use it on the payoff word of a shot
+that would otherwise sit still, at most every few shots, or it stops landing.
 
 `icon` is a path under `public/` to a product's logo, like `Screenshot`'s `src`:
 `"reels/<slug>/icons/chatgpt.svg"`. The kit ships no logos; the `brand-logos` skill fetches the
@@ -233,25 +266,29 @@ Run `npm run typecheck` after.
 
 ## Files
 
-- `src/Reel.tsx`: lays shots end to end, adds voice, captions, a whoosh between shots (a paper
-  swipe in print), the music bed, handle, the print host, and on a talking head the take framed
-  by each shot's `layout`.
+- `src/Reel.tsx`: lays shots end to end, adds voice, captions, a whoosh and a wipe between shots
+  (glitch bars in flat, a paper swipe and halftone dots in print), each shot's snap `zoom`, the
+  music bed, handle, the print host, and on a talking head the take framed by each shot's
+  `layout`.
 - `src/theme.ts`: palettes, the two styles (`makeTheme`) and the safe-area `LAYOUT`.
 - `src/components/`: `Background`, `Captions`, `Host` (print presenter), `Take` (your video),
-  `Music` (the ducked music bed), `Logo` (draws a reel's fetched logo for `icon` props).
+  `Music` (the ducked music bed), `Logo` (draws a reel's fetched logo for `icon` props), `Cut`
+  (the wipe at each cut), `Character` (the user's own cartoon host).
 - `src/sound.ts`: the sound effect and music names (also used by the scripts).
 - `src/scenes/`: the kit's scenes, registered in `index.ts`. `src/scenes/local/`: scenes for one
   reel, loaded by themselves, ignored by git.
 - `src/timeline.ts`: joins `script.json` and `voice.json` into timed shots (also used by the scripts).
 - `src/poses.ts`: the print host's poses and each scene's default (also used by `plan`).
 - `src/components/Captions.tsx`: word-by-word captions.
-- `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `check`, `plan`, `stills`, `render`, `sfx`
-  (downloads the CC0 sources, masters them into `public/sfx/` and `public/music/`, writes
-  `public/sfx/CREDITS.md` and an audition page at `out/sfx/index.html`). To swap a sound, change
-  its source in `scripts/sfx.mjs` and re-run it.
+- `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `host`, `check`, `plan`, `stills`, `render`,
+  `pace`, `sfx` (downloads the CC0 sources, masters them into `public/sfx/` and `public/music/`,
+  writes `public/sfx/CREDITS.md` and an audition page at `out/sfx/index.html`). To swap a sound,
+  change its source in `scripts/sfx.mjs` and re-run it.
 - `public/sfx/`, `public/music/`: the sounds and music beds, all CC0 (public domain); sources in
   `public/sfx/CREDITS.md`.
 - `.claude/skills/brand-logos/`: how to fetch and check a product's current logo for a reel.
+- `.claude/skills/cartoon-host/`: how to turn the user's photo into their own cartoon host.
+- `public/host/`: the user's cartoon, one PNG per pose and `host.json`; ignored by git.
 - `public/reels/`: one folder per reel. Only `example/` is in git; the user's reels stay local.
 - `out/<slug>/`: one folder per reel with `<slug>.mp4`, `caption.txt`, `plan.html` and
   `stills/`. Safe to delete.

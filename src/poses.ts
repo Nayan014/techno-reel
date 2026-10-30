@@ -21,6 +21,7 @@ const SCENE_POSE: Record<string, PoseName> = {
   Hook: "point",
   ChatPrompt: "think",
   Statement: "think",
+  Stamp: "cheer",
   BigNumber: "shock",
   List: "present",
   Compare: "shrug",

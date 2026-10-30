@@ -327,6 +327,9 @@ export const pickVoiceProvider = () => {
   return wanted;
 };
 
+/** A shot's frame just before its cut, when everything in it is on screen. */
+export const settledFrame = (shot) => shot.from + Math.max(0, shot.frames - 6);
+
 /** Bundles the project once and resolves the Reel composition for `slug`. */
 export const openReel = async (slug) => {
   const { bundle } = await import("@remotion/bundler");

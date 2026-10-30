@@ -34,7 +34,8 @@ try {
 } catch {}
 const take = Boolean(script.take);
 const print = script.style === "print";
-const host = print && !take && script.host !== false;
+const character = script.host === "character";
+const host = !take && (character || (print && script.host !== false));
 
 const seconds = (shot, i) => {
   if (reel) return reel.shots[i].frames / FPS;
@@ -117,8 +118,9 @@ const framing = (shot) => {
     const clip = shot.clip ? ` · clip ${shot.clip[0]}–${shot.clip[1]} s` : "";
     return `${TAKE_FRAMES[layout] ?? layout}${over}${clip}`;
   }
-  if (!print) return "flat stage";
-  return host ? `cut-paper stage, host ${poseName(shot)}` : "cut-paper stage";
+  const stage = print ? "cut-paper stage" : "flat stage";
+  if (!host) return stage;
+  return `${stage}, ${character ? "your cartoon" : "host"} ${poseName(shot)}`;
 };
 
 const missing = [];
@@ -152,6 +154,7 @@ const card = (shot, i) => {
     );
   }
   if (take && layoutOf(shot) !== "graphic") tools.push(chip("Remotion", `Take · ${layoutOf(shot)}`));
+  if (shot.zoom) tools.push(chip("Remotion", `snap zoom on "${shot.zoom}"`));
   tools.push(chip("Voice", voiceLabel()));
   const props = Object.entries(shot.props ?? {});
   return `<article class="card">

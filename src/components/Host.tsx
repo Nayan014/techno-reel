@@ -1,5 +1,6 @@
-import React from "react";
-import { spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { type MediaUtilsAudioData, useAudioData } from "@remotion/media-utils";
+import React, { useMemo } from "react";
+import { spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { useTheme } from "../context";
 import { type PoseName, poseName } from "../poses";
 import { LAYOUT } from "../theme";
@@ -29,6 +30,60 @@ const POSES: Record<PoseName, Pose> = {
 
 const poseOf = (shot: Shot) => POSES[poseName(shot)];
 
+/** How loud a voice line is on each of its frames: 0 silent, 1 its loudest moment. */
+const loudness = (audio: MediaUtilsAudioData, fps: number) => {
+  const samples = audio.channelWaveforms[0];
+  const step = audio.sampleRate / fps;
+  const levels = Array.from({ length: Math.ceil(samples.length / step) }, (_, f) => {
+    const from = Math.floor(f * step);
+    const to = Math.min(samples.length, Math.floor((f + 1) * step));
+    let sum = 0;
+    for (let i = from; i < to; i++) sum += samples[i] * samples[i];
+    return Math.sqrt(sum / Math.max(1, to - from));
+  });
+  const peak = Math.max(1e-6, ...levels);
+  return levels.map((level) => level / peak);
+};
+
+/** Below this the mouth stays shut, so breaths and room tone don't move it. */
+const QUIET = 0.12;
+
+/**
+ * What every host does the same way: the shot on screen, how far it has moved into that shot's
+ * pose (`k`, 0 → 1), how wide its mouth is open (0–1, as loud as the voice is), its slide in
+ * at the start and its bob.
+ */
+export const useHostMotion = (shots: Shot[]) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const index = Math.max(
+    0,
+    shots.findLastIndex((shot) => shot.from <= frame),
+  );
+  const shot = shots[index];
+  const audio = useAudioData(staticFile(shot.audio));
+  const levels = useMemo(() => (audio ? loudness(audio, fps) : []), [audio, fps]);
+  const k = spring({
+    frame: frame - shot.from,
+    fps,
+    config: { damping: 12, stiffness: 150, mass: 0.7 },
+  });
+  const t = (frame - shot.from) / fps;
+  const speaking = shot.words.some((w) => t >= w.start && t <= w.end);
+  // Opens fast and closes a little slower, like a real jaw, instead of flickering per frame.
+  const at = frame - shot.from + Math.round((shot.offset ?? 0) * fps);
+  const level = Math.max(levels[at] ?? 0, 0.6 * (levels[at - 1] ?? 0));
+  return {
+    frame,
+    shot,
+    previous: shots[index - 1] as Shot | undefined,
+    k,
+    mouth: Math.min(1, Math.max(0, (level - QUIET) / 0.6)),
+    enter: spring({ frame: frame - 4, fps, config: { damping: 14 } }),
+    bob: Math.sin(frame / 9) * (speaking ? 5 : 2.5),
+  };
+};
+
 const W = 300;
 const H = 440;
 const UPPER = 62;
@@ -36,25 +91,14 @@ const LOWER = 58;
 
 /**
  * A cut-paper presenter standing bottom left, under the stage and left of the captions.
- * It changes pose on every shot, talks while a word is being said and blinks now and then.
+ * It changes pose on every shot, opens its mouth as wide as the voice is loud and blinks now
+ * and then.
  */
 export const Host: React.FC<{ shots: Shot[] }> = ({ shots }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const theme = useTheme();
-
-  const index = Math.max(
-    0,
-    shots.findLastIndex((shot) => shot.from <= frame),
-  );
-  const shot = shots[index];
-  const from = index > 0 ? poseOf(shots[index - 1]) : POSES.idle;
+  const { frame, shot, previous, k, mouth, enter, bob } = useHostMotion(shots);
+  const from = previous ? poseOf(previous) : POSES.idle;
   const to = poseOf(shot);
-  const k = spring({
-    frame: frame - shot.from,
-    fps,
-    config: { damping: 12, stiffness: 150, mass: 0.7 },
-  });
   const mix = (a: number, b: number) => a + (b - a) * k;
   const wave = to.wave ? Math.sin(frame / 3.5) * 22 : 0;
   const left: [number, number] = [mix(from.left[0], to.left[0]), mix(from.left[1], to.left[1])];
@@ -62,13 +106,7 @@ export const Host: React.FC<{ shots: Shot[] }> = ({ shots }) => {
     mix(from.right[0], to.right[0]),
     mix(from.right[1], to.right[1]) + wave,
   ];
-
-  const t = (frame - shot.from) / fps;
-  const speaking = shot.words.some((w) => t >= w.start && t <= w.end);
-  const mouth = speaking ? 0.3 + 0.7 * Math.abs(Math.sin(t * 17)) : 0;
   const blink = frame % 97 < 4 ? 0.12 : 1;
-  const enter = spring({ frame: frame - 4, fps, config: { damping: 14 } });
-  const bob = Math.sin(frame / 9) * (speaking ? 5 : 2.5);
   const brow = mix(from.brow, to.brow);
   const height = (LAYOUT.hostWidth / W) * H;
 

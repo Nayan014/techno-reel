@@ -4,16 +4,20 @@ import {
   Html5Audio,
   Sequence,
   interpolate,
+  spring,
   staticFile,
+  useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { Background } from "./components/Background";
 import { Captions } from "./components/Captions";
+import { Character } from "./components/Character";
+import { Cut } from "./components/Cut";
 import { Handle } from "./components/Handle";
 import { Host } from "./components/Host";
 import { Music } from "./components/Music";
 import { Take } from "./components/Take";
-import { Sfx } from "./components/ui";
+import { Sfx, cueFrames } from "./components/ui";
 import { ShotContext, ThemeContext, useTheme } from "./context";
 import { body } from "./fonts";
 import { scenes } from "./scenes";
@@ -29,8 +33,10 @@ export type ReelProps = {
 export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
   if (!reel) throw new Error(`Reel "${slug}" was not loaded`);
   const theme = makeTheme(reel.palette, reel.style);
-  // On a talking head you are the host.
-  const host = theme.style === "print" && !reel.take && reel.host !== false;
+  // On a talking head you are the host. Your own cartoon hosts in either style, the paper one in print.
+  const host =
+    !reel.take &&
+    (reel.host === "character" || (theme.style === "print" && reel.host !== false));
   return (
     <ThemeContext.Provider value={theme}>
       <AbsoluteFill style={{ fontFamily: body, color: theme.ink }}>
@@ -52,13 +58,21 @@ export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
             />
           </Sequence>
         ))}
-        {host && <Host shots={reel.shots} />}
+        {host &&
+          (reel.character ? (
+            <Character shots={reel.shots} config={reel.character} />
+          ) : (
+            <Host shots={reel.shots} />
+          ))}
         {reel.music && <Music name={reel.music} shots={reel.shots} />}
         <Handle text={reel.handle} />
       </AbsoluteFill>
     </ThemeContext.Provider>
   );
 };
+
+/** How far the stage snaps in on a shot's `zoom` word. */
+const SNAP = 0.06;
 
 const layoutOf = (shot: Shot, take: boolean): Layout =>
   take ? (shot.layout ?? (shot.scene ? "graphic" : "full")) : "graphic";
@@ -71,6 +85,7 @@ const ShotView: React.FC<{
   focus: [number, number];
   host: boolean;
 }> = ({ shot, index, previous, take, focus, host }) => {
+  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const theme = useTheme();
   const Scene = shot.scene ? scenes[shot.scene] : undefined;
@@ -86,6 +101,19 @@ const ShotView: React.FC<{
   const whoosh =
     previous && (Scene || layoutOf(previous, Boolean(take)) === "graphic");
   const spoken = Math.round(shot.end * fps);
+  const [snapAt] = shot.zoom
+    ? cueFrames(shot.words, [shot.zoom], fps, shot.frames)
+    : [];
+  const zoom =
+    snapAt === undefined
+      ? 1
+      : 1 +
+        SNAP *
+          spring({
+            frame: frame - snapAt,
+            fps,
+            config: { damping: 14, stiffness: 500, mass: 0.4 },
+          });
 
   return (
     <ShotContext.Provider value={shot}>
@@ -98,7 +126,7 @@ const ShotView: React.FC<{
         />
       )}
       {Scene && layout === "split" && (
-        <Stage height={LAYOUT.splitStageHeight}>
+        <Stage height={LAYOUT.splitStageHeight} zoom={zoom}>
           <div
             style={{
               width: 1080 - 2 * LAYOUT.stageSide,
@@ -118,7 +146,10 @@ const ShotView: React.FC<{
         <Veil />
       )}
       {Scene && layout !== "split" && (
-        <Stage height={captions ? LAYOUT.stageHeight : LAYOUT.stageHeightTall}>
+        <Stage
+          height={captions ? LAYOUT.stageHeight : LAYOUT.stageHeightTall}
+          zoom={zoom}
+        >
           <Scene {...shot.props} />
         </Stage>
       )}
@@ -151,6 +182,8 @@ const ShotView: React.FC<{
           variant={index}
         />
       )}
+      {snapAt !== undefined && <Sfx name="whip" at={snapAt} volume={0.25} />}
+      {whoosh && <Cut seed={index} />}
     </ShotContext.Provider>
   );
 };
@@ -168,10 +201,11 @@ const Veil: React.FC = () => {
   );
 };
 
-const Stage: React.FC<{ height: number; children: React.ReactNode }> = ({
-  height,
-  children,
-}) => (
+const Stage: React.FC<{
+  height: number;
+  zoom: number;
+  children: React.ReactNode;
+}> = ({ height, zoom, children }) => (
   <div
     style={{
       position: "absolute",
@@ -182,6 +216,7 @@ const Stage: React.FC<{ height: number; children: React.ReactNode }> = ({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      transform: `scale(${zoom})`,
     }}
   >
     {children}
