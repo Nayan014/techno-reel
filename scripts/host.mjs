@@ -26,8 +26,13 @@ if (
   fail(`--order must name each pose once: ${HOST_POSES.join(",")}`);
 if (single && !HOST_POSES.includes(single))
   fail(`--pose must be one of: ${HOST_POSES.join(", ")}`);
-if (!hasFilters("colorkey", "drawbox"))
+if (!hasFilters("colorkey", "geq", "drawbox"))
   fail("Cutting the character out needs the full ffmpeg. Run: brew install ffmpeg");
+
+// Outlines antialiased against magenta come out purple: wherever red and blue both rise above
+// green, pull them back down to it. Skin, whites and any colour without that tint stay as they are.
+const SPILL = "max(0,min(r(X,Y),b(X,Y))-g(X,Y))";
+const DESPILL = `geq=r='r(X,Y)-${SPILL}':g='g(X,Y)':b='b(X,Y)-${SPILL}':a='alpha(X,Y)'`;
 
 /** Keys out the magenta of one cell (`crop`, or the whole image) into public/host/<pose>.png. */
 const cut = (pose, crop) =>
@@ -35,7 +40,7 @@ const cut = (pose, crop) =>
     "-loglevel", "error",
     "-y",
     "-i", image,
-    "-vf", `${crop ? `${crop},` : ""}format=rgba,colorkey=0xFF00FF:${key}:0.08`,
+    "-vf", `${crop ? `${crop},` : ""}format=rgba,colorkey=0xFF00FF:${key}:0.08,${DESPILL}`,
     "-frames:v", "1",
     join(DIR, `${pose}.png`),
   ]);
