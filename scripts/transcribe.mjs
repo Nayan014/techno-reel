@@ -82,7 +82,7 @@ if (video) {
   fail(`No take yet. Usage: ${usage}`);
 }
 
-// Speech recognition and silence detection both read a 16 kHz mono copy, kept out of out/.
+// Speech recognition and silence detection both read a 16 kHz mono copy, kept in a temp dir.
 const scratch = mkdtempSync(join(tmpdir(), "reel-take-"));
 const wavPath = join(scratch, "take-16k.wav");
 ffmpeg(["-y", "-i", take, "-vn", "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", wavPath]);

@@ -1,10 +1,11 @@
 // Gets a fresh clone ready to make reels: packages, a .env to edit, the local voice engine
 // (VoiceStudio, installed into ./voicestudio), the renderer's Chrome, then a checkup.
-// Safe to run again; packages are refreshed, settings and installed voice files are kept.
+// Safe to run again: packages reinstall only when package-lock.json changed; settings,
+// installed voice files and the downloaded Chrome are kept.
 // Usage: npm run setup [-- --render-only]
 import { spawnSync } from "node:child_process";
-import { copyFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { copyFileSync, existsSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { fail, loadEnv, nodeSupported, pickVoiceProvider, voiceStudio } from "./lib.mjs";
 
 const VOICESTUDIO_REPO = "https://github.com/debpalash/VoiceStudio";
@@ -23,7 +24,8 @@ if (!nodeSupported())
   );
 
 step("Packages");
-if (!run("npm", ["ci"])) fail("npm ci failed; see above. Check your network and package-lock.json.");
+if (packagesCurrent()) console.log("  up to date");
+else if (!run("npm", ["ci"])) fail("npm ci failed; see above. Check your network and package-lock.json.");
 
 step("Settings");
 if (existsSync(".env")) console.log("  .env is already there");
@@ -57,13 +59,29 @@ step("Checkup");
 if (!run(process.execPath, ["scripts/doctor.mjs", ...(renderOnly ? ["--render-only"] : [])]))
   fail("Checkup failed. Fix the ✗ items above, then run npm run doctor" + (renderOnly ? " -- --render-only" : "") + ".");
 
+/**
+ * npm rewrites node_modules/.package-lock.json on every install, so one at least as new as
+ * package-lock.json means nothing changed. Skipping `npm ci` then also keeps Remotion's Chrome
+ * (in node_modules/.remotion), which it would delete and download again.
+ */
+function packagesCurrent() {
+  try {
+    return statSync("node_modules/.package-lock.json").mtimeMs >= statSync("package-lock.json").mtimeMs;
+  } catch {
+    return false;
+  }
+}
+
 async function setUpVoiceStudio() {
   if (await voiceStudio.running()) {
     console.log(`  running at ${voiceStudio.url()}`);
     return warmUp();
   }
   const dir = voiceStudio.dir();
-  if (existsSync(join(dir, "backend", "main.py"))) {
+  const checkedOut = existsSync(join(dir, "backend", "main.py"));
+  // An install elsewhere (~/VoiceStudio, VOICESTUDIO_DIR) is the user's to manage. Setup's own
+  // in ./voicestudio is synced on every run, so an interrupted package download resumes.
+  if (checkedOut && resolve(dir) !== resolve("voicestudio")) {
     console.log(`  installed at ${dir}`);
   } else {
     if (process.platform !== "darwin" || process.arch !== "arm64") {
@@ -73,7 +91,7 @@ async function setUpVoiceStudio() {
       );
       return;
     }
-    if (!has("git"))
+    if (!checkedOut && !has("git"))
       fail("git is missing. Install Apple's developer tools: xcode-select --install");
     if (!has("uv")) {
       if (!has("brew"))
@@ -81,16 +99,19 @@ async function setUpVoiceStudio() {
       console.log("  installing uv (a Python package manager) with Homebrew…");
       if (!run("brew", ["install", "uv"])) fail("brew install uv failed; see above.");
     }
-    if (!existsSync(join(dir, ".git"))) {
-      console.log(`  downloading VoiceStudio into ${dir}…`);
-      // Blobs on demand: only the files of the commit below are downloaded, not all history.
-      if (!run("git", ["clone", "--filter=blob:none", "--no-checkout", VOICESTUDIO_REPO, dir]))
-        fail("Couldn't download VoiceStudio; check the internet connection and run setup again.");
+    if (!checkedOut) {
+      if (!existsSync(join(dir, ".git"))) {
+        console.log(`  downloading VoiceStudio into ${dir}…`);
+        // Blobs on demand: only the files of the commit below are downloaded, not all history.
+        if (!run("git", ["clone", "--filter=blob:none", "--no-checkout", VOICESTUDIO_REPO, dir]))
+          fail("Couldn't download VoiceStudio; check the internet connection and run setup again.");
+      }
+      if (!run("git", ["-C", dir, "checkout", "--quiet", VOICESTUDIO_COMMIT]))
+        fail(`Couldn't check out VoiceStudio ${VOICESTUDIO_COMMIT.slice(0, 8)} in ${dir}.`);
     }
-    if (!run("git", ["-C", dir, "checkout", "--quiet", VOICESTUDIO_COMMIT]))
-      fail(`Couldn't check out VoiceStudio ${VOICESTUDIO_COMMIT.slice(0, 8)} in ${dir}.`);
-    console.log("  installing its Python packages (about 1.7 GB, one time)…");
-    if (!run("uv", ["sync", "--locked"], { cwd: dir }))
+    console.log("  Python packages (about 1.7 GB the first time)…");
+    // --inexact keeps packages added later, such as an extra engine's.
+    if (!run("uv", ["sync", "--locked", "--inexact"], { cwd: dir }))
       fail(`uv sync failed in ${dir}; see above, then run setup again.`);
   }
   if (await voiceStudio.ensure()) await warmUp();
