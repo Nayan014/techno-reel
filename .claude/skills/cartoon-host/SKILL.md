@@ -57,6 +57,11 @@ right, top to bottom: `--order=idle,point,present,think,shrug,shock,cheer,wave` 
 cells 1–8 above). This writes `public/host/<pose>.png`, `public/host/host.json` and
 `out/host/check.png`.
 
+Each figure is cut along the magenta around it, not the grid, so a hand reaching past its cell
+stays whole; every pose gets the same canvas and stands on the same floor. When a row's figures
+touch, that row falls back to 4 equal cells and the script says so: look at the check, and cut
+any clipped pose out on its own and replace it with `--pose`.
+
 If one pose came out wrong, have the image AI redo only that one (the sheet as the reference, the
 same magenta), then replace just it: `npm run host -- <that.png> --pose=shock`.
 
