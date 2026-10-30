@@ -1,19 +1,18 @@
 // Storyboard for plan mode: one card per shot with its frame, line, on-screen text and the tools
 // that make it, written to out/<slug>/plan.html for the user to review before the render.
-// Without voice yet, durations are estimated. --frames puts each shot's still on its card
-// (run `npm run stills` first).
+// Lines without voice yet have estimated durations. --frames puts each shot's still on its card
+// (run `npm run stills` first; it works before the voice too).
 // Usage: npm run plan -- <slug> [--frames]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 import { poseName } from "../src/poses.ts";
 import { FPS, buildReel } from "../src/timeline.ts";
 import {
-  delivery,
+  estimateLines,
   loadEnv,
   pickVoiceProvider,
   readJson,
   reelArgs,
-  spokenText,
   voiceStudio,
 } from "./lib.mjs";
 
@@ -25,31 +24,26 @@ const voice = readJson(join(dir, "voice.json"));
 const outDir = join("out", slug);
 const output = join(outDir, "plan.html");
 
-/** Kokoro's pace with the breath between lines, to guess a shot's length before it's recorded. */
-const WORDS_PER_SECOND = 3;
-
+// A take can't be estimated until its voice step cuts it; until then its clips are the guide.
 let reel = null;
 try {
-  reel = buildReel(slug, script, voice);
+  reel = buildReel(slug, script, voice, estimateLines(script));
 } catch {}
 const take = Boolean(script.take);
 const print = script.style === "print";
 const character = script.host === "character";
 const host = !take && (character || (print && script.host !== false));
 
-const seconds = (shot, i) => {
-  if (reel) return reel.shots[i].frames / FPS;
-  if (shot.clip) return shot.clip[1] - shot.clip[0];
-  const { phrases, hold } = delivery(shot.say);
-  const pauses = phrases.reduce((sum, phrase) => sum + phrase.pause, hold);
-  return spokenText(shot.say).split(" ").length / WORDS_PER_SECOND + pauses;
-};
-const approx = reel ? "" : "≈";
+const seconds = (shot, i) =>
+  reel ? reel.shots[i].frames / FPS : shot.clip ? shot.clip[1] - shot.clip[0] : 0;
+/** True until every line is recorded. */
+const estimated = !reel || reel.shots.some((shot) => !shot.audio);
+const approx = estimated ? "≈" : "";
 const total = script.shots.reduce((sum, shot, i) => sum + seconds(shot, i), 0);
 
 const voiceLabel = () => {
   if (take) return "your take";
-  if (reel) return `${voice.provider} · ${voice.voice}`;
+  if (!estimated) return `${voice.provider} · ${voice.voice}`;
   return {
     voicestudio: `voicestudio · ${voiceStudio.model()}/${voiceStudio.voice()}`,
     elevenlabs: "elevenlabs",
@@ -235,7 +229,7 @@ const html = `<!doctype html>
 <body>
 <main>
   <div class="top"><h1>${esc(script.title)}</h1><span class="stage">${stage}</span></div>
-  <p class="meta">${esc(slug)} · ${esc(script.style ?? "flat")} · ${esc(script.palette)} · ${esc(script.handle)} · ${script.music ? `music: ${esc(script.music)}` : "no music"} · ${script.shots.length} shots · ${approx}${total.toFixed(1)} s${reel ? "" : " (estimated, no voice yet)"}</p>
+  <p class="meta">${esc(slug)} · ${esc(script.style ?? "flat")} · ${esc(script.palette)} · ${esc(script.handle)} · ${script.music ? `music: ${esc(script.music)}` : "no music"} · ${script.shots.length} shots · ${approx}${total.toFixed(1)} s${estimated ? " (estimated, no voice yet)" : ""}</p>
   <p class="hint">Want a change? Reply in chat with the card number, e.g. “03: make it a BigNumber”.</p>
   <div class="grid">
 ${script.shots.map(card).join("\n")}

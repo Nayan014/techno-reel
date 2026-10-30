@@ -22,12 +22,15 @@ import {
   delivery,
   fail,
   loadEnv,
+  normalize,
   pickVoiceProvider,
   readJson,
   readWav,
   reelArgs,
   round,
   spokenText,
+  spread,
+  tokenize,
   voiceStudio,
   wavSeconds,
   writeWav,
@@ -346,14 +349,6 @@ async function useSay() {
 }
 
 
-function tokenize(say) {
-  return spokenText(say).split(" ").filter(Boolean);
-}
-
-function normalize(token) {
-  return token.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-}
-
 /**
  * Puts the script's own words on the transcript's timings. Words the transcript wrote
  * differently ("1.2" for "one point two") are spread over the gap between matched neighbours.
@@ -393,21 +388,3 @@ function alignWords(tokens, heard) {
   }
   return words;
 }
-
-/** Spreads words over [from, to] by length, leaving room for punctuation pauses. */
-function spread(tokens, from, to) {
-  const pause = (token) =>
-    /[.!?]$/.test(token) ? 6 : /[,;:]$/.test(token) ? 4 : 0;
-  const weight = (token) => normalize(token).length + 2;
-  const total =
-    tokens.reduce((sum, token) => sum + weight(token) + pause(token), 0) || 1;
-  const span = to - from;
-  let t = from;
-  return tokens.map((token) => {
-    const start = t;
-    const spoken = (weight(token) / total) * span;
-    t += spoken + (pause(token) / total) * span;
-    return { text: token, start: round(start), end: round(start + spoken) };
-  });
-}
-

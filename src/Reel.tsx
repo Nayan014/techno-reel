@@ -22,12 +22,14 @@ import { ShotContext, ThemeContext, useTheme } from "./context";
 import { body } from "./fonts";
 import { scenes } from "./scenes";
 import { LAYOUT, makeTheme } from "./theme";
-import type { Layout, ReelData, Shot } from "./types";
+import type { Layout, ReelData, Shot, VoiceLine } from "./types";
 
 export type ReelProps = {
   slug: string;
   /** Filled in by calculateMetadata from public/reels/<slug>/. */
   reel: ReelData | null;
+  /** Timing for lines not recorded yet, by shot id: `npm run stills` sends it, a render never. */
+  estimates?: Record<string, VoiceLine>;
 };
 
 export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
@@ -159,21 +161,23 @@ const ShotView: React.FC<{
           left={host ? LAYOUT.captionLeftWithHost : undefined}
         />
       )}
-      {take ? (
-        <Html5Audio
-          src={staticFile(shot.audio)}
-          trimBefore={Math.round((shot.offset ?? 0) * fps)}
-          // Fade in and out over a few frames so the cut doesn't click or spill the next word.
-          volume={(f) =>
-            interpolate(f, [0, 2, spoken, spoken + 3], [0, 1, 1, 0], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            })
-          }
-        />
-      ) : (
-        <Html5Audio src={staticFile(shot.audio)} />
-      )}
+      {/* A line timed by estimate, before the voice is recorded, has no audio. */}
+      {shot.audio &&
+        (take ? (
+          <Html5Audio
+            src={staticFile(shot.audio)}
+            trimBefore={Math.round((shot.offset ?? 0) * fps)}
+            // Fade in and out over a few frames so the cut doesn't click or spill the next word.
+            volume={(f) =>
+              interpolate(f, [0, 2, spoken, spoken + 3], [0, 1, 1, 0], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              })
+            }
+          />
+        ) : (
+          <Html5Audio src={staticFile(shot.audio)} />
+        ))}
       {whoosh && (
         // Paper slides between cut-paper shots; air everywhere else. Takes alternate per cut.
         <Sfx

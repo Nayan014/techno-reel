@@ -45,6 +45,10 @@ const loudness = (audio: MediaUtilsAudioData, fps: number) => {
   return levels.map((level) => level / peak);
 };
 
+/** A millisecond of silence: the voice of a line not recorded yet, so the mouth stays shut. */
+const SILENCE =
+  "data:audio/wav;base64,UklGRjQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YRAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
 /** Below this the mouth stays shut, so breaths and room tone don't move it. */
 const QUIET = 0.12;
 
@@ -61,7 +65,7 @@ export const useHostMotion = (shots: Shot[]) => {
     shots.findLastIndex((shot) => shot.from <= frame),
   );
   const shot = shots[index];
-  const audio = useAudioData(staticFile(shot.audio));
+  const audio = useAudioData(shot.audio ? staticFile(shot.audio) : SILENCE);
   const levels = useMemo(() => (audio ? loudness(audio, fps) : []), [audio, fps]);
   const k = spring({
     frame: frame - shot.from,

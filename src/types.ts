@@ -55,8 +55,8 @@ export type Word = { text: string; start: number; end: number };
 /** Written by `npm run voice`, one per shot id. */
 export type VoiceLine = {
   say: string;
-  /** Path under public/. */
-  audio: string;
+  /** Path under public/. None on a line timed by estimate, before it's recorded. */
+  audio?: string;
   /** Seconds into `audio` where this line starts (a take); 0 for a recorded line. */
   offset?: number;
   /** Talking head: the clip this line was cut from, as written in script.json. */

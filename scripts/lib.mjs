@@ -167,6 +167,53 @@ export const spokenText = (say) =>
 
 export const round = (n) => Math.round(n * 1000) / 1000;
 
+export const tokenize = (say) => spokenText(say).split(" ").filter(Boolean);
+
+export const normalize = (token) =>
+  token.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+
+/** Spreads words over [from, to] by length, leaving room for punctuation pauses. */
+export const spread = (tokens, from, to) => {
+  const pause = (token) =>
+    /[.!?]$/.test(token) ? 6 : /[,;:]$/.test(token) ? 4 : 0;
+  const weight = (token) => normalize(token).length + 2;
+  const total =
+    tokens.reduce((sum, token) => sum + weight(token) + pause(token), 0) || 1;
+  const span = to - from;
+  let t = from;
+  return tokens.map((token) => {
+    const start = t;
+    const spoken = (weight(token) / total) * span;
+    t += spoken + (pause(token) / total) * span;
+    return { text: token, start: round(start), end: round(start + spoken) };
+  });
+};
+
+/** Kokoro's measured pace, marks aside, to time a line before it's recorded. */
+const WORDS_PER_SECOND = 3.3;
+
+/**
+ * Every spoken line timed by estimate, by shot id, with no audio: what plan mode's frames and
+ * storyboard use until the voice is recorded. None for a take, whose voice step only cuts it.
+ */
+export const estimateLines = (script) => {
+  if (script.take) return undefined;
+  const lines = {};
+  for (const shot of script.shots) {
+    const { phrases, hold } = delivery(shot.say);
+    const words = [];
+    let t = 0;
+    for (const phrase of phrases) {
+      const tokens = tokenize(phrase.text);
+      const from = t + phrase.pause;
+      t = from + tokens.length / WORDS_PER_SECOND;
+      words.push(...spread(tokens, from, t));
+    }
+    lines[shot.id] = { say: shot.say, end: round(t + hold), words, estimated: true };
+  }
+  return lines;
+};
+
 /** Remotion needs Node 22.18 or newer. */
 export const nodeSupported = () => {
   const [major, minor] = process.versions.node.split(".").map(Number);
@@ -330,14 +377,17 @@ export const pickVoiceProvider = () => {
 /** A shot's frame just before its cut, when everything in it is on screen. */
 export const settledFrame = (shot) => shot.from + Math.max(0, shot.frames - 6);
 
-/** Bundles the project once and resolves the Reel composition for `slug`. */
-export const openReel = async (slug) => {
+/**
+ * Bundles the project once and resolves the Reel composition for `slug`. `estimates` (from
+ * estimateLines) times the lines not recorded yet; without it every line needs its voice.
+ */
+export const openReel = async (slug, estimates) => {
   const { bundle } = await import("@remotion/bundler");
   const { selectComposition } = await import("@remotion/renderer");
   process.stdout.write("Bundling… ");
   const serveUrl = await bundle({ entryPoint: resolve("src/index.ts") });
   console.log("done");
-  const inputProps = { slug };
+  const inputProps = { slug, estimates };
   const composition = await selectComposition({
     serveUrl,
     id: "Reel",

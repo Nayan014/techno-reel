@@ -23,7 +23,7 @@ export const Root: React.FC = () => (
       const script = await loadJson<Script>(`${dir}/script.json`);
       if (!script) throw new Error(`public/${dir}/script.json not found`);
       const voice = await loadJson<Voice>(`${dir}/voice.json`);
-      const reel = buildReel(props.slug, script, voice);
+      const reel = buildReel(props.slug, script, voice, props.estimates);
       if (script.host === "character") {
         const character = await loadJson<CharacterConfig>("host/host.json");
         if (!character)

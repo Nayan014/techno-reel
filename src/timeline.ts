@@ -1,6 +1,6 @@
 // Shared by the video and the Node scripts (Node runs this file directly), so it may only
 // `import type` and must not touch Remotion.
-import type { ReelData, Script, Voice } from "./types";
+import type { ReelData, Script, Voice, VoiceLine } from "./types";
 
 export const FPS = 30;
 export const WIDTH = 1080;
@@ -13,21 +13,27 @@ const TAKE_PAD = 0.06;
 /** Extra hold on the last shot so the CTA can land before the loop. */
 const END_HOLD = 0.8;
 
-/** Joins the authored script with its recorded voice and lays the shots end to end. */
+/**
+ * Joins the authored script with its recorded voice and lays the shots end to end.
+ * `estimates` times the lines not recorded yet (plan mode's frames, before the voice).
+ */
 export const buildReel = (
   slug: string,
   script: Script,
   voice: Voice | null,
+  estimates?: Record<string, VoiceLine>,
 ): ReelData => {
   let from = 0;
   const pad = script.take ? TAKE_PAD : PAD;
   const shots = script.shots.map((shot, i) => {
-    const line = voice?.lines[shot.id];
-    if (
-      !line ||
-      line.say !== shot.say ||
-      String(line.clip) !== String(shot.clip)
-    ) {
+    const recorded = voice?.lines[shot.id];
+    const line =
+      recorded &&
+      recorded.say === shot.say &&
+      String(recorded.clip) === String(shot.clip)
+        ? recorded
+        : estimates?.[shot.id];
+    if (!line) {
       throw new Error(
         `Shot "${shot.id}" has no voice for its current line. Run: npm run voice -- ${slug}`,
       );

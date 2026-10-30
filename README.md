@@ -54,12 +54,11 @@ flowchart TD
     idea(["💡 One line"]) --> mode{"Auto or Plan?"}
     mode -- Auto --> script["✍️ Script"]
     mode -- Plan --> cards["🗂️ Script + plan cards<br/>you review"]
+    cards --> frames["🖼️ Cards with real frames<br/>you review"]
     script --> voice["🎤 Voice"]
-    cards --> voice
+    frames --> voice
     voice --> check["🔍 Pace + look checks"]
-    check -- Auto --> render["🎬 Render"]
-    check -- Plan --> frames["🖼️ Cards with real frames<br/>you review"]
-    frames --> render
+    check --> render["🎬 Render"]
     render --> reel(["📱 mp4 + caption"])
 ```
 
@@ -115,8 +114,8 @@ make a reel about why coffee makes some people sleepy
 | 1. writes the script                          | 1. Claude writes the script and shows a page of cards, one per shot             |
 | 2. records the voice                          | 2. each card: what you see, what's said, the text on screen, which tool makes it |
 | 3. builds the animations                      | 3. you reply with changes (`03: make it a big number`) until you like it        |
-| 4. checks its own work and fixes problems     | 4. Claude records the voice and shows the same cards with real pictures         |
-| 5. saves the video                            | 5. you say OK, it saves the video                                               |
+| 4. checks its own work and fixes problems     | 4. Claude draws every shot and shows the same cards with real pictures          |
+| 5. saves the video                            | 5. you say OK, and only then it records the voice and saves the video           |
 
 **Step 4.** Find your files in the reel's own folder, `out/<name>/`:
 
@@ -331,7 +330,8 @@ Checks timing. Fix anything marked **FAIL**.
 npm run stills -- <name>
 ```
 
-Saves one picture per shot in `out/<name>/stills/` so you can look at them.
+Saves one picture per shot in `out/<name>/stills/` so you can look at them. Works before the
+voice is recorded: a line without one is timed by estimate.
 
 ```bash
 npm run plan -- <name>

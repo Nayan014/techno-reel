@@ -57,7 +57,8 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
 **Plan**? Skip the question when they already said which (`plan it first`, `just make it`).
 
 - **Auto**: run the whole workflow on your own and hand over the mp4.
-- **Plan**: the user reviews a storyboard twice before anything is rendered.
+- **Plan**: the user reviews a storyboard twice before anything is rendered, and no voice is
+  recorded until they've approved the frames.
   1. Do steps 1–2 (a talking head: Transcribe, Find the face and Cut first). If a shot needs a
      scene that doesn't exist yet, name it anyway; its card says "new scene, to write".
   2. `npm run plan -- <slug>` writes `out/<slug>/plan.html`: one card per shot with its frame,
@@ -65,12 +66,15 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
      Show the page to the user (open it in your browser pane or file preview if you have one,
      else `open out/<slug>/plan.html`) and stop. For each change they ask for ("03: make it a
      BigNumber"), edit `script.json`, re-run `plan`, show it again. Voice and render nothing yet.
-  3. When they approve: write any new scenes, then steps 3–5 (Voice, Pace gate, Look gate; fix
-     what you find yourself), then `npm run plan -- <slug> --frames` and show it again: real
-     stills, real durations. Stop. For each change: edit, re-run `voice` if a `say` or `clip`
-     changed, `npm run stills -- <slug> --shot=<id>` for every changed shot, then
-     `plan --frames`.
-  4. When they approve again: steps 6–9 (Render, Motion gate, Caption, Hand over).
+  3. When they approve: write any new scenes, then step 5 (Look gate; fix what you find
+     yourself) without recording the voice: `stills` times every line that has none yet by
+     estimate. A talking head runs `voice` first; it only cuts the take. Then
+     `npm run plan -- <slug> --frames` and show it again: real stills, estimated durations.
+     Stop. For each change: edit (a talking head: re-run `voice` if a `clip` changed),
+     `npm run stills -- <slug> --shot=<id>` for every changed shot, then `plan --frames`.
+  4. When they approve the frames: steps 3–4 (Voice, Pace gate), then steps 6–9 (Render, Motion
+     gate, Caption, Hand over). If a gate makes you change an approved shot, re-run its still and
+     `plan --frames` and show the user before you render.
 
 ## Workflow
 
