@@ -11,7 +11,7 @@ write it, voice it, animate it and export it on your Mac.
 
 [MIT](LICENSE) · React + Remotion · Local rendering
 
-[Quick start](#quick-start) · [Workflow](#how-the-workflow-works) · [Your avatar](#create-your-own-avatar) · [Voice](#voice-text-to-speech-and-cloning) · [Reel types](#what-can-you-make) · [Dashboard](#review-your-projects)
+[Quick start](#quick-start) · [Workflow](#how-the-workflow-works) · [Your avatar](#create-your-own-avatar) · [Voice](#voice-text-to-speech-and-cloning) · [Reel types](#what-can-you-make) · [Dashboard](#review-your-projects) · [Under the hood](#under-the-hood)
 
 <img src="docs/showcase.jpg" alt="Example reel in the flat style (top) and print style with a paper host (bottom)" width="100%">
 
@@ -28,28 +28,30 @@ captions, sound effects and optional music. Reels typically run 20–45 seconds.
 
 ## Quick start
 
-**Requirements:** Node.js **22.18+**, Homebrew, and an AI coding assistant such as Claude Code,
-Gemini CLI, Codex or Cursor. Apple Silicon macOS is the primary supported platform.
+**You need:** a Mac (Apple Silicon for the free local voice), [Node.js](https://nodejs.org) **22.18 or newer**
+(check with `node -v`; install with `brew install node`, or `nvm use` for the pinned version),
+Git, and an AI coding assistant such as Claude Code, Gemini CLI, Codex or Cursor.
 
-**1. Try the included example.** No voice engine needed:
+**1. Install and render the example.** About a minute, no voice engine:
 
 ```bash
 git clone https://github.com/Nayan014/techno-reel.git
 cd techno-reel
 npm run setup -- --render-only
 npm run render -- example
+open projects/example/export/example.mp4
 ```
 
-Your video: `projects/example/export/example.mp4`.
-
-**2. Enable voice for your own reels:**
+**2. Add the voice** for your own reels:
 
 ```bash
 npm run setup
 ```
 
-Full setup installs VoiceStudio and its model; allow several GB and a few minutes.
-Setup preserves existing `.env` settings. Internet is required for downloads and rendering fonts.
+This installs [VoiceStudio](https://github.com/debpalash/VoiceStudio), a free local voice
+engine, and its model: several GB, a few minutes, once. It uses [Homebrew](https://brew.sh)
+to install `uv` if you don't have it. Setup is safe to re-run; it keeps your `.env`, packages
+and downloads. Prefer ElevenLabs or macOS `say`? See [other voice providers](#other-voice-providers).
 
 **3. Make your first reel.** Open this folder in Claude Code, Gemini CLI, Codex or Cursor and ask:
 
@@ -67,6 +69,9 @@ Choose how much you want to review:
 
 Find the finished files in `projects/<slug>/export/`. To revise them, tell your assistant:
 `In sleep-tips, make the hook punchier`.
+
+Something not working? `npm run doctor` checks every piece and says how to fix what's missing.
+Want to drive it by hand? See [Under the hood](#under-the-hood).
 
 ## How the workflow works
 
@@ -172,7 +177,8 @@ acceptance happen in VoiceStudio. Ask your assistant for help with your installa
 
 ### Other voice providers
 
-Set your provider in `.env` **before full setup**:
+Pick one with `VOICE_PROVIDER` in `.env`, then run `npm run setup`; it skips VoiceStudio for
+the others. Setup creates `.env` on its first run, or copy it yourself: `cp .env.example .env`.
 
 | Provider | What you need |
 | --- | --- |
@@ -184,8 +190,6 @@ Providers never switch automatically. Intel Macs need an alternative to local ML
 the full Windows/Linux workflow is unverified. See [.env.example](.env.example) for all settings.
 
 ## What can you make?
-
-![The same reel in flat style above and paper style below](docs/showcase.jpg)
 
 | Reel type | What it looks like | Try asking |
 | --- | --- | --- |
@@ -224,14 +228,98 @@ projects/<slug>/
   export/       <slug>.mp4, cover.png and caption.txt
 ```
 
-For frame-by-frame playback, run `npm run studio -- <slug>`.
-To create an empty project, run `npm run project -- <slug>`.
+## Under the hood
+
+The assistant has no hidden powers: every step it takes is a plain npm script you can run,
+read and change yourself. No AI needed.
+
+### Make a reel by hand
+
+```bash
+npm run project -- my-reel
+cp examples/example/script.json projects/my-reel/working/
+# edit projects/my-reel/working/script.json
+npm run voice -- my-reel
+npm run check -- my-reel
+npm run stills -- my-reel
+npm run render -- my-reel
+```
+
+A reel is one `script.json`: a few top-level choices and one entry per shot.
+
+```json
+{
+  "title": "You have 1.5 seconds",
+  "style": "print",
+  "palette": "clay",
+  "handle": "@yourhandle",
+  "music": "upbeat",
+  "shots": [
+    {
+      "id": "01",
+      "say": "You have | *one and a half seconds.*",
+      "scene": "Hook",
+      "captions": false,
+      "props": { "lines": ["You have", "1.5 seconds"], "highlight": "1.5" }
+    }
+  ]
+}
+```
+
+- `style`: `flat` or `print` · `palette`: `clay`, `cobalt`, `forest`, `mono` ·
+  `music`: `lofi`, `upbeat`, `chill`, `funk`, or leave it out.
+- `say` is spoken and captioned. `|` adds a beat, `||` a long pause, `*words*` are said heavy.
+- `scene` is one of `Hook`, `Statement`, `Stamp`, `ChatPrompt`, `BigNumber`, `List`, `Compare`,
+  `Meter`, `Swarm`, `Screenshot`, `CTA`. Their props are in the
+  [scene reference](CLAUDE.md#scenes).
+- Talking heads add `"take": "take.mp4"`, and each shot a `clip: [in, out]` and a `layout`.
+
+### Every command
+
+| Command | What it does |
+| --- | --- |
+| `npm run project -- <slug>` | Create `projects/<slug>/` |
+| `npm run voice -- <slug>` | Record every line (unchanged lines are cached) and time its words |
+| `npm run check -- <slug>` | Pace gate: hook length, words per second, reel length. Renders nothing |
+| `npm run plan -- <slug> [--frames]` | Storyboard page at `preview/plan.html`; `--frames` adds real stills |
+| `npm run stills -- <slug> [--shot=03]` | One PNG per shot, taken just before its cut |
+| `npm run render -- <slug> [--draft]` | Final MP4 and cover; `--draft` is half size and fast |
+| `npm run pace -- <slug> [--draft]` | Motion gate: flags anything still for over 1.2 s |
+| `npm run studio -- <slug>` | Scrub and inspect the reel in Remotion Studio |
+| `npm run dashboard` | Read-only overview of every project at `127.0.0.1:4173` |
+| `npm run transcribe -- <slug> <video>` | Talking head: level, denoise and transcribe your recording |
+| `npm run host -- <sheet.png>` | Cut a cartoon pose sheet into your presenter |
+| `npm run sfx` | Re-download and master the sound effects and music |
+| `npm run doctor [-- --render-only]` | Check the setup and say how to fix what's missing |
+| `npm test` · `npm run typecheck [-- <slug>]` | Kit tests; TypeScript for the kit and a reel's custom scenes |
+
+### Make it yours
+
+| To change | Edit |
+| --- | --- |
+| Voice, engine, speed, language | `.env` (every setting is explained in [.env.example](.env.example)) |
+| Colours, styles, Instagram safe area | `src/theme.ts` |
+| A scene just for one reel | `projects/<slug>/working/scenes/<Name>.tsx`; it loads by itself |
+| The kit's scenes | `src/scenes/`, registered in `src/scenes/index.ts` |
+| Captions, cuts, music bed, presenter | `src/components/` |
+| Sound effects and music | the sources in `scripts/sfx.mjs`, then `npm run sfx` |
+| How the assistant works | [CLAUDE.md](CLAUDE.md); Codex, Cursor and Gemini read it via `AGENTS.md` and `GEMINI.md` |
+
+New scenes build on the same helpers as the kit's: start from `src/scenes/List.tsx` and the
+[scene guide](CLAUDE.md#writing-a-new-scene). Check them in both styles with
+`npm run stills`, and with `npm run typecheck -- <slug>`.
 
 ## Help and reference
 
-Run `npm run doctor` to diagnose setup or voice problems, or
-`npm run doctor -- --render-only` to check rendering alone.
-VoiceStudio logs are in `.local/logs/voicestudio.log`.
+Start with `npm run doctor` (or `npm run doctor -- --render-only` for rendering alone). Common fixes:
+
+- **Node too old:** install Node 24 LTS (`brew install node` or `nvm install`), then rerun setup.
+- **VoiceStudio won't start:** read the end of `.local/logs/voicestudio.log`. Another process on
+  port 3900 (`lsof -i :3900`) blocks it; stop that, then run `npm run doctor`.
+- **Intel Mac:** local voice needs Apple Silicon. Use ElevenLabs or `say` instead
+  (see [other voice providers](#other-voice-providers)). Linux and Windows are untested.
+- **A download failed:** check your connection and rerun `npm run setup`; it skips what's
+  done and resumes the rest.
 
 - [Workflow and scene reference](CLAUDE.md) — production steps, validation gates, scene props and custom scenes.
 - [Contributing](CONTRIBUTING.md) — development, bug reports and dependency notes.

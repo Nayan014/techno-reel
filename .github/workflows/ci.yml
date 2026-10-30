@@ -26,5 +26,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: example-node-${{ matrix.node }}
-          path: out/example/example-draft.mp4
+          path: projects/example/preview/draft.mp4
           if-no-files-found: error

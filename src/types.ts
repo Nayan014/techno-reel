@@ -76,7 +76,7 @@ export type Voice = {
 
 export type Shot = ScriptShot & VoiceLine & { from: number; frames: number };
 
-/** public/host/host.json, written by `npm run host`: where each pose of your cartoon has its mouth. */
+/** .local/host/host.json, written by `npm run host`: where each pose of your cartoon has its mouth. */
 export type CharacterConfig = {
   /** Width of the mouth, as a share of the pose image's width. */
   mouthWidth: number;
