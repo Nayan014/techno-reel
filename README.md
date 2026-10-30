@@ -38,13 +38,17 @@ sound. 1080×1920, ready to post.
 
 - ✍️ **Writes the script.** Hook first, one idea per shot, 20–45 seconds.
 - 🎤 **Records a natural voice.** Free and local, no cloud, no subscription.
-- 🎞️ **Animates every shot in code.** Nine scene types, two looks, all built with Remotion.
+- 🎞️ **Animates every shot in code.** Eleven scene types, two looks, a wipe at every cut and a
+  snap zoom on the payoff word, all built with Remotion.
 - 💬 **Adds word-by-word captions**, kept clear of Instagram's buttons.
 - 🔊 **Scores it.** Real recorded sound effects on every beat and a music bed that dips under
   the voice. All public domain, so they're safe in paid work and monetised posts.
-- 🗂️ **Plan mode.** See every shot as a card and change it before anything is rendered.
+- 🗂️ **Plan mode.** See every shot as a card, then as a real picture, and change it. The voice is
+  recorded and the video made only after you say OK.
 - 🎥 **Edits your own video.** Cuts the "um"s, pauses and retakes out of a talking-head recording.
-- 🔍 **Checks its own work.** Pace and look checks on every shot before the final render.
+- 🧑‍🎨 **Hosted by you.** A cartoon of you can present every reel, its mouth moving with the voice.
+- 🔍 **Checks its own work.** Pace and look checks on every shot before the final render, and a
+  motion check on the finished video so nothing sits still.
 - 🔒 **Stays private.** Everything runs on your Mac. Your reels never leave it.
 
 ## 🧭 How it works
@@ -87,6 +91,15 @@ cd techno-reel && npm run setup
 
 Setup installs everything and checks it at the end. The first time it downloads about 2 GB
 (the voice engine) and takes a few minutes. You can run it again any time; it skips what's done.
+
+**Check it works** by making the example reel. Its voice is already recorded, so this takes
+about a minute:
+
+```bash
+npm run render -- example
+```
+
+Open `out/example/example.mp4`. That's the reel in the top row of the picture above.
 
 ---
 
@@ -146,7 +159,8 @@ Just add it to your sentence. Some examples:
 | 📋 A list            | `make it a top 3 list`                                                                                                  |
 | ✂️ Paper look        | `use the print style`: cut-paper cards, a little paper presenter, captions that fill in as they're spoken               |
 | 🎵 Music             | `use funk music` or `no music`. Choices: **lofi**, **upbeat**, **chill**, **funk**                                      |
-| 🗂️ Plan it first     | `plan it first`: cards for every shot you can change before the video is made                                           |
+| 🗂️ Plan it first     | `plan it first`: cards for every shot you can change before the voice is recorded and the video is made                 |
+| 🧑‍🎨 You as the host   | `my own cartoon host`: a cartoon of you presents the reel (see [below](#-your-own-cartoon-host))                        |
 | 🎥 Your own video    | `edit ~/Downloads/my-video.mov into a reel` (see below)                                                                 |
 
 You can mix them:
@@ -338,7 +352,9 @@ npm run plan -- <name>
 ```
 
 Makes `out/<name>/plan.html`: one card per shot to review. Works before the voice is recorded.
-Add `--frames` after `stills` to put the pictures on the cards.
+Add `--frames` after `stills` to put the pictures on the cards. To plan first, go
+`plan` → `stills` → `plan --frames`, change `script.json` until you like it, and only then run
+`voice`, `check`, `render` and `pace`.
 
 ```bash
 npm run render -- <name>
