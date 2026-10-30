@@ -31,7 +31,8 @@ a host that looks like them.
 
 If `node_modules/` or the voice engine is missing, run `npm run setup` (installs packages,
 makes `.env`, installs VoiceStudio into `./voicestudio`, then runs the doctor). Otherwise run
-`npm run doctor`. Walk the user through every ✗ either prints.
+`npm run doctor`. For rendering the shipped example without voice, use
+`npm run setup -- --render-only` and `npm run doctor -- --render-only`. Walk the user through every ✗ either prints.
 
 The voice is **VoiceStudio**: free, local, served on `127.0.0.1:3900` from the headless install
 in `./voicestudio` (made by `npm run setup`), or `~/VoiceStudio` if that's where it already is

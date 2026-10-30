@@ -49,7 +49,8 @@ sound. 1080×1920, ready to post.
 - 🧑‍🎨 **Hosted by you.** A cartoon of you can present every reel, its mouth moving with the voice.
 - 🔍 **Checks its own work.** Pace and look checks on every shot before the final render, and a
   motion check on the finished video so nothing sits still.
-- 🔒 **Stays private.** Everything runs on your Mac. Your reels never leave it.
+- 🔒 **Local rendering and optional local voice.** ElevenLabs sends text to its cloud service.
+  Your AI coding tool has its own data handling; see [privacy and downloads](#privacy-and-downloads).
 
 ## 🧭 How it works
 
@@ -76,8 +77,10 @@ flowchart TD
 - 🟢 [Node.js](https://nodejs.org) 22.18 or newer (`brew install node`) and
   [Homebrew](https://brew.sh)
 - 🤖 an AI coding tool: [Claude Code](https://claude.com/claude-code),
-  [Gemini CLI](https://github.com/google-gemini/gemini-cli), Codex or Cursor. They all read the
-  same instructions (`CLAUDE.md`; `AGENTS.md` and `GEMINI.md` point to it).
+  [Gemini CLI](https://github.com/google-gemini/gemini-cli), Codex or Cursor. They use
+  the same workflow (`CLAUDE.md`; `AGENTS.md` and `GEMINI.md` refer to it).
+
+### Try the example first (no voice engine needed)
 
 **Then, in the Terminal:**
 
@@ -86,11 +89,13 @@ git clone https://github.com/Nayan014/techno-reel.git
 ```
 
 ```bash
-cd techno-reel && npm run setup
+cd techno-reel
+npm run setup -- --render-only
 ```
 
-Setup installs everything and checks it at the end. The first time it downloads about 2 GB
-(the voice engine) and takes a few minutes. You can run it again any time; it skips what's done.
+This installs the locked Node packages and headless Chrome, creates `.env` without overwriting
+your settings, and checks rendering requirements. It skips voice downloads and voice checks.
+Internet access is required for downloads and the fonts used by the renderer.
 
 **Check it works** by making the example reel. Its voice is already recorded, so this takes
 about a minute:
@@ -100,6 +105,32 @@ npm run render -- example
 ```
 
 Open `out/example/example.mp4`. That's the reel in the top row of the picture above.
+
+### Enable voice for your own reels
+
+```bash
+npm run setup
+```
+
+Full setup uses `VOICE_PROVIDER` in `.env`. The default installs VoiceStudio and downloads its
+packages and model (allow several GB of disk space and several minutes on the first run).
+Setup runs `npm ci` every time to match `package-lock.json`; it preserves `.env` and reuses an
+existing voice installation. It does not update that installation automatically.
+
+| Environment | Support |
+| --- | --- |
+| Apple Silicon macOS | Primary supported environment for the full local workflow |
+| Intel macOS | Local Kokoro via MLX is unavailable; select ElevenLabs or macOS `say` explicitly |
+| Windows / Linux | Full workflow unverified; local MLX voice and macOS `say` are unavailable |
+
+English is the default voice language. Other languages and cloning depend on the selected
+engine and model; see [the voice](#-the-voice). Talking-head transcription requires VoiceStudio
+even when another provider generates your voice. Homebrew ffmpeg adds noise reduction.
+
+For an alternative provider, edit `.env` **before** full setup. `VOICE_PROVIDER=elevenlabs`
+needs your own paid-service key and voice ID. `VOICE_PROVIDER=say` uses the Mac's robotic voice
+with estimated caption timing. Neither selection installs VoiceStudio; there is no automatic
+provider fallback.
 
 ---
 
@@ -292,7 +323,7 @@ either look. Ask Claude for `my own cartoon host`; it walks you through it:
 4. 🎬 Every reel with `"host": "character"` now stars your cartoon. It changes pose on every
    shot and its mouth moves with the voice.
 
-Your cartoon stays on your Mac in `public/host/`, never in git. Claude never uploads your photo.
+Your cartoon stays on your Mac in `public/host/`, never in git. The host-cutting script processes the supplied image locally; using an image service to create it is your choice.
 
 ---
 
@@ -468,3 +499,33 @@ and utilities. On the side I run **Techno Ravan**, a channel about AI and future
 Made with ❤️ and a lot of ☕ in Germany 🇩🇪 by [Nayan Vekariya](https://vekariya.ai.studio/)
 
 </div>
+
+
+## Privacy and downloads
+
+Rendering is local. Setup downloads npm packages, Chrome, and (for the default full setup)
+VoiceStudio and model files. Rendering loads Google Fonts; fetching logos and restoring sound
+assets also requires internet access. Offline operation is not guaranteed.
+
+The default voice and transcription use the configured VoiceStudio endpoint (loopback by
+default). ElevenLabs sends spoken text to ElevenLabs. Your AI coding assistant may process
+prompts and repository content remotely under its own settings and terms. The cartoon-host
+workflow may involve an image service you choose; review what you submit to that service.
+
+`.env`, generated reels, renders, local scenes and custom hosts are ignored by Git. Keep
+personal source recordings outside tracked folders; ignore rules do not protect arbitrary
+files you add elsewhere or anything already committed. Never attach keys or private takes to
+public bug reports.
+
+## Licenses and contributing
+
+The kit's own code is MIT licensed. Dependencies, voice models, fonts and media retain their
+own terms. See [third-party notices](THIRD_PARTY_NOTICES.md) before commercial or client use.
+
+For development and bug reports, see [CONTRIBUTING.md](CONTRIBUTING.md). For sensitive reports,
+see [SECURITY.md](SECURITY.md).
+
+Current validation and remaining platform limits are recorded in
+[the release check](docs/release-check.md). Studio may print a Zod version warning because
+this kit uses a security-patched version ahead of Remotion's pinned dependency; see
+[the dependency note](CONTRIBUTING.md).

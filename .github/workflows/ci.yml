@@ -1,0 +1,30 @@
+name: Checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        node: ['22.18.0', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm run setup -- --render-only
+      - run: npm audit --audit-level=high
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run check -- example
+      - run: npm run render -- example --draft
+      - uses: actions/upload-artifact@v4
+        with:
+          name: example-node-${{ matrix.node }}
+          path: out/example/example-draft.mp4
+          if-no-files-found: error

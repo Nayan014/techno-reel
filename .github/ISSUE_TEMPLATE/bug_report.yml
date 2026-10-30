@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible problem without private data.
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, chip/architecture, Node version, and voice provider (no keys).
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Include the exact command and a minimal non-private example.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized error or doctor output
+      description: Remove keys, personal paths and private content. Never upload .env or private takes.
+      render: text

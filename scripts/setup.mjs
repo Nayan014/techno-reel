@@ -1,11 +1,11 @@
 // Gets a fresh clone ready to make reels: packages, a .env to edit, the local voice engine
 // (VoiceStudio, installed into ./voicestudio), the renderer's Chrome, then a checkup.
-// Safe to run again; finished steps are skipped.
-// Usage: npm run setup
+// Safe to run again; packages are refreshed, settings and installed voice files are kept.
+// Usage: npm run setup [-- --render-only]
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { fail, loadEnv, nodeSupported, voiceStudio } from "./lib.mjs";
+import { fail, loadEnv, nodeSupported, pickVoiceProvider, voiceStudio } from "./lib.mjs";
 
 const VOICESTUDIO_REPO = "https://github.com/debpalash/VoiceStudio";
 /** The VoiceStudio commit this kit was tested against; newer ones may change its API. */
@@ -23,8 +23,7 @@ if (!nodeSupported())
   );
 
 step("Packages");
-if (existsSync("node_modules/remotion")) console.log("  already installed");
-else if (!run("npm", ["install"])) fail("npm install failed; see above.");
+if (!run("npm", ["ci"])) fail("npm ci failed; see above. Check your network and package-lock.json.");
 
 step("Settings");
 if (existsSync(".env")) console.log("  .env is already there");
@@ -34,16 +33,29 @@ else {
 }
 loadEnv();
 
-step("Voice engine (VoiceStudio)");
-await setUpVoiceStudio();
+const renderOnly = process.argv.includes("--render-only");
+const provider = renderOnly ? null : pickVoiceProvider();
+if (provider === "voicestudio") {
+  step("Voice engine (VoiceStudio)");
+  await setUpVoiceStudio();
+} else {
+  console.log(renderOnly
+    ? "  render-only: voice installation and checks skipped"
+    : `  using ${provider}; VoiceStudio installation skipped`);
+}
 
 step("Renderer (headless Chrome)");
 const { ensureBrowser } = await import("@remotion/renderer");
-await ensureBrowser();
-console.log("  ready");
+try {
+  await ensureBrowser();
+  console.log("  ready");
+} catch (error) {
+  fail(`Could not prepare headless Chrome: ${error.message}. Check your network, then rerun setup.`);
+}
 
 step("Checkup");
-run(process.execPath, ["scripts/doctor.mjs"]);
+if (!run(process.execPath, ["scripts/doctor.mjs", ...(renderOnly ? ["--render-only"] : [])]))
+  fail("Checkup failed. Fix the ✗ items above, then run npm run doctor" + (renderOnly ? " -- --render-only" : "") + ".");
 
 async function setUpVoiceStudio() {
   if (await voiceStudio.running()) {
@@ -57,7 +69,7 @@ async function setUpVoiceStudio() {
     if (process.platform !== "darwin" || process.arch !== "arm64") {
       console.log(
         "  skipped: the free local voice needs a Mac with Apple Silicon.\n" +
-          "  To record reels anyway, set VOICE_PROVIDER=elevenlabs (paid) or say (robotic) in .env.",
+          "  To record reels anyway, set VOICE_PROVIDER=elevenlabs (paid) in .env. macOS also supports say (robotic).",
       );
       return;
     }
