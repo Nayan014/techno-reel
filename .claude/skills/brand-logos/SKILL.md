@@ -1,12 +1,12 @@
 ---
 name: brand-logos
-description: Fetch the official, current logo of a product or company a reel shows (ChatGPT, Claude, Gemini, Copilot, Grok, Cursor…) into public/reels/<slug>/icons/ and point a scene's `icon` at it. Use while making a reel whenever a shot is about a product, app or brand.
+description: Fetch the official, current logo of a product or company a reel shows (ChatGPT, Claude, Gemini, Copilot, Grok, Cursor…) into projects/<slug>/working/icons/ and point a scene's `icon` at it. Use while making a reel whenever a shot is about a product, app or brand.
 ---
 
 # Brand logos
 
 A shot about a product shows that product's real, current logo. The kit stores no logos: fetch
-them for each reel into `public/reels/<slug>/icons/`, which git ignores. Logos are their owners'
+them for each reel into `projects/<slug>/working/icons/`, which git ignores. Logos are their owners'
 trademarks, shown here editorially in a reel about that product: use them as published, and never
 copy them into the kit or commit them.
 
@@ -30,8 +30,8 @@ Stop at the first source that has the current mark.
    ```
    `route` is a URL or `{ "light", "dark" }`. Take `light`: dark ink, made for light cards.
    ```bash
-   mkdir -p public/reels/<slug>/icons
-   curl -sfL -o public/reels/<slug>/icons/chatgpt.svg https://svgl.app/library/openai.svg
+   mkdir -p projects/<slug>/working/icons
+   curl -sfL -o projects/<slug>/working/icons/chatgpt.svg https://svgl.app/library/openai.svg
    ```
 2. **The company's brand or press page** (svgl's `brandUrl`, or search "<brand> brand assets"):
    the authority when svgl lacks the brand or you doubt its file is current. Kits often come as
@@ -67,9 +67,9 @@ svgl had these in October 2026. Brands redesign, so search again rather than tru
   these render inside an image). Otherwise delete it and try the next source.
 - Look at it:
   ```bash
-  qlmanage -t -s 512 -o out/<slug>/icons public/reels/<slug>/icons/<name>.svg
+  qlmanage -t -s 512 -o projects/<slug>/preview/icons projects/<slug>/working/icons/<name>.svg
   ```
-  and read `out/<slug>/icons/<name>.svg.png` (a file with `width="1em"` previews tiny but draws
+  and read `projects/<slug>/preview/icons/<name>.svg.png` (a file with `width="1em"` previews tiny but draws
   full size in the reel). It must be the product's mark as its own site and
   app show it today: the right product, the latest design, the symbol and not the wordmark, not
   cropped. Unsure? Open the product's site or its favicon and compare.

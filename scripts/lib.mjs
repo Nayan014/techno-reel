@@ -1,3 +1,4 @@
+import { projectPaths, ensureExample, preparePublic } from "./projects.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, openSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -17,11 +18,12 @@ export const option = (name, fallback) => {
   return hit ? hit.slice(name.length + 3) : fallback;
 };
 
-/** The reel slug (first non-flag argument) and its folder under public/. */
+/** The project slug (first non-flag argument) and canonical working directory. */
 export const reelArgs = (usage) => {
   const slug = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
   if (!slug) fail(`Usage: ${usage}`);
-  const dir = join("public", "reels", slug);
+  if (slug === "example") ensureExample();
+  const dir = projectPaths(slug).working;
   if (!existsSync(join(dir, "script.json")))
     fail(`${dir}/script.json not found`);
   return { slug, dir };
@@ -276,12 +278,12 @@ export const voiceStudio = {
     ) && existsSync(join(voiceStudio.dir(), "backend", "main.py")),
   /**
    * Starts the backend detached, so it keeps serving after this script exits and later
-   * runs find it warm, then waits until it answers. Output goes to out/voicestudio.log.
+   * runs find it warm, then waits until it answers. Output goes to .local/logs/voicestudio.log.
    */
   start: async () => {
     const { hostname, port, protocol } = new URL(voiceStudio.url());
-    mkdirSync("out", { recursive: true });
-    const log = resolve("out", "voicestudio.log");
+    mkdirSync(".local/logs", { recursive: true });
+    const log = resolve(".local/logs", "voicestudio.log");
     const output = openSync(log, "a");
     const args = [
       "run",
@@ -385,7 +387,7 @@ export const openReel = async (slug, estimates) => {
   const { bundle } = await import("@remotion/bundler");
   const { selectComposition } = await import("@remotion/renderer");
   process.stdout.write("Bundling… ");
-  const serveUrl = await bundle({ entryPoint: resolve("src/index.ts") });
+  const serveUrl = await bundle({ entryPoint: resolve("src/index.ts"), publicDir: preparePublic(slug), webpackOverride: (await import("./webpack.mjs")).projectWebpack(slug) });
   console.log("done");
   const inputProps = { slug, estimates };
   const composition = await selectComposition({

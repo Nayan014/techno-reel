@@ -1,12 +1,11 @@
-# Scenes for one reel
+# Project scenes
 
-A scene written for a single reel goes here, not in `src/scenes/`. Git ignores this folder
-(except this file), so one-off scenes stay on your Mac and never show up as changes to push.
+New custom scenes belong in `projects/<slug>/working/scenes/`. The selected project
+is mapped into the scene loader by the render and Studio commands.
 
-- One file per scene: `<Name>.tsx` exporting `export const <Name>`.
-- It loads by itself; don't add it to `src/scenes/index.ts`.
-- Its name can't be one the kit already uses.
+Each `<Name>.tsx` exports `const <Name>`. Do not register project scenes in the kit.
+Import kit helpers using `../../../../src/` (for example `../../../../src/components/ui`).
+A custom scene cannot use an existing kit scene name.
 
-To turn one into a kit scene everyone gets, move it to `src/scenes/`, register it in
-`src/scenes/index.ts`, give it a default pose in `src/poses.ts`, and list it in `CLAUDE.md` and
-`README.md`.
+This directory remains only as the bundler context anchor and a legacy migration location.
+Assign any old `.tsx` files here to the correct project before rendering, and update imports.

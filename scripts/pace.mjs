@@ -1,3 +1,5 @@
+import { recordGate } from "./projects.mjs";
+import { projectPaths, recordOutput } from "./projects.mjs";
 // Finds where a rendered reel sits still, by watching the mp4 itself. Run it after `render`.
 // Something on screen should change at least every second: a word, a pop, a zoom, a cut.
 // Usage: npm run pace -- <slug> [--draft]
@@ -8,7 +10,7 @@ import { fail, ffmpeg, readJson, reelArgs } from "./lib.mjs";
 
 const { slug, dir } = reelArgs("npm run pace -- <slug> [--draft]");
 const draft = process.argv.includes("--draft");
-const video = join("out", slug, `${slug}${draft ? "-draft" : ""}.mp4`);
+const video = join(draft ? projectPaths(slug).preview : projectPaths(slug).exports, draft ? "draft.mp4" : `${slug}.mp4`);
 if (!existsSync(video))
   fail(`${video} not found. Run: npm run render -- ${slug}${draft ? " --draft" : ""}`);
 
@@ -25,7 +27,7 @@ const LIMIT = 1.2;
 const OPENING = 2;
 const REPORT = 0.5;
 
-const raw = join("out", slug, "pace.gray");
+const raw = join(projectPaths(slug).working, "pace.gray");
 ffmpeg([
   "-loglevel", "error",
   "-i", video,
@@ -92,4 +94,5 @@ const failed = results.some(([level]) => level === "FAIL");
 console.log(
   `${failed ? "✗" : "✓"} ${slug}: ${failed ? "sits still too long" : `nothing still over ${LIMIT}s`}`,
 );
+recordGate(slug, "pace" + (draft ? "-draft" : ""), results);
 process.exit(failed ? 1 : 0);

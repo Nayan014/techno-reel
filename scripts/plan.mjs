@@ -1,5 +1,6 @@
+import { projectPaths, recordOutput, assetPath } from "./projects.mjs";
 // Storyboard for plan mode: one card per shot with its frame, line, on-screen text and the tools
-// that make it, written to out/<slug>/plan.html for the user to review before the render.
+// that make it, written to projects/<slug>/preview/plan.html for the user to review before the render.
 // Lines without voice yet have estimated durations. --frames puts each shot's still on its card
 // (run `npm run stills` first; it works before the voice too).
 // Usage: npm run plan -- <slug> [--frames]
@@ -21,7 +22,7 @@ const { slug, dir } = reelArgs("npm run plan -- <slug> [--frames]");
 const frames = process.argv.includes("--frames");
 const script = readJson(join(dir, "script.json"));
 const voice = readJson(join(dir, "voice.json"));
-const outDir = join("out", slug);
+const outDir = projectPaths(slug).preview;
 const output = join(outDir, "plan.html");
 
 // A take can't be estimated until its voice step cuts it; until then its clips are the guide.
@@ -122,7 +123,7 @@ const frameHtml = (shot) => {
   const still = frames && dataUri(join(outDir, "stills", `${shot.id}.png`));
   if (frames && !still) missing.push(shot.id);
   if (still) return `<img class="still" src="${still}" alt="Shot ${esc(shot.id)}">`;
-  const image = shot.scene === "Screenshot" && shot.props?.src && dataUri(join("public", shot.props.src));
+  const image = shot.scene === "Screenshot" && shot.props?.src && dataUri(shot.props.src.startsWith("reels/") ? assetPath(shot.props.src) : join("public", shot.props.src));
   const text = shot.scene ? headline(shot.props) : `your face · ${layoutOf(shot)}`;
   return `<div class="sketch">
       <span class="tag">${esc(shot.scene ?? "Take")}</span>
@@ -246,3 +247,5 @@ if (missing.length)
 console.log(
   `✓ ${output}  (${script.shots.length} shots, ${approx}${total.toFixed(1)}s, ${frames ? "frames" : "text"})`,
 );
+
+recordOutput(slug, "plan");

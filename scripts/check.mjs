@@ -1,3 +1,4 @@
+import { recordGate } from "./projects.mjs";
 // Pace and structure gate. Fast: reads the JSON, renders nothing. Exits 1 on any FAIL.
 // Usage: npm run check -- <slug>
 import { existsSync } from "node:fs";
@@ -74,10 +75,10 @@ if (reel) {
   }
   if (shots.at(-1).scene !== "CTA") warning("Last shot isn't a CTA.");
   const cartoon = ["host.json", ...HOST_POSES.map((pose) => `${pose}.png`)];
-  const lost = cartoon.filter((file) => !existsSync(join("public", "host", file)));
+  const lost = cartoon.filter((file) => !existsSync(join(".local", "host", file)));
   if (script.host === "character" && lost.length)
     failure(
-      `"host": "character" but public/host/ has no ${lost.join(", ")}. Run: npm run host -- <sheet.png>`,
+      `"host": "character" but .local/host/ has no ${lost.join(", ")}. Run: npm run host -- <sheet.png>`,
     );
   if (/yourhandle/i.test(reel.handle))
     warning(`Handle is still "${reel.handle}".`);
@@ -96,4 +97,5 @@ if (reel) {
     `${failed ? "✗" : "✓"} ${slug}: ${reel.shots.length} shots, ${seconds}s`,
   );
 }
+recordGate(slug, "check", results);
 process.exit(failed ? 1 : 0);

@@ -13,8 +13,7 @@ out/
 voicestudio/
 
 # Your reels stay on your Mac; only the example ships
-public/reels/*
-!public/reels/example/
+public/reels/
 
 # Scenes written for one reel
 src/scenes/local/*
@@ -38,3 +37,7 @@ Thumbs.db
 
 # Your own cartoon host, made by `npm run host` from a picture of you
 public/host/
+
+# Private projects and local dashboard/render state
+projects/
+.local/

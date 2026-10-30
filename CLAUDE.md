@@ -9,6 +9,40 @@ When the user asks for a reel, first ask **Auto** or **Plan** (see **Modes**), t
 workflow below. Ask nothing else unless the topic is missing. Reply in the user's language and
 write the reel in it too.
 
+
+## Local projects and dashboard
+
+The AI chat drives the workflow. The dashboard (`npm run dashboard`,
+`http://127.0.0.1:4173`) is a read-only local viewer: no AI access, uploads, approvals,
+or processing actions. Use it to review projects, plans, stills, videos, captions and checks.
+It refreshes every five seconds. Approvals and feedback happen in this chat.
+
+- Create a project with `npm run project -- <slug> [Display name]`. Existing names are never overwritten.
+- Ask the user to put originals into `projects/<slug>/raw/`; when importing from elsewhere,
+  copy rather than move. Never overwrite originals. Select one main recording for talking-head work.
+- Working files live in `projects/<slug>/working/`; previews in `preview/`; finals in `export/`.
+- Browser asset paths remain `reels/<slug>/…`, relative to `working/`. Render/Studio generates
+  disposable staging in `.local/render/`; never edit it or maintain a second copy in public/reels.
+- Update `project.json` as you work: preserve `version`, `name`, and `createdAt`; set `mode`
+  (`auto` or `plan`), `stage`, and `nextAction` in the user's language. Stages: `new`, `planning`,
+  `awaiting-plan-review`, `awaiting-frame-review`, `producing`, `exported`, `needs-attention`.
+  These are AI-reported stages, not inferred quality guarantees. Record useful failure details
+  in `nextAction`; never mark exported until the required gates and caption are complete.
+- In Plan mode, record explicit user approvals in `approvals.json`, keyed by `plan` and `frames`,
+  with `status: "approved"`, `approvedAt`, and the `fingerprint` from `outputs.json` for that
+  reviewed plan/stills revision. Regenerate and request approval when the approved content changes.
+- Scripts save preview/export fingerprints in `outputs.json` and check results in `checks.json`.
+  The dashboard flags old outputs and checks when working inputs or shared rendering assets change.
+  Never invent a pass result or approval. An existing MP4 alone does not mean the reel passed.
+- Custom scenes go in `working/scenes/`; reusable kit files change only at the user's request.
+- All `projects/` and `.local/` data is ignored by Git. The example in `examples/example/`
+  is the only intentionally shared project template. Never force-add private project data.
+- Old installations: `npm run migrate` previews; `npm run migrate -- --apply` copies files
+  into the new layout without changing originals. Conflicts stop migration.
+  `npm run migrate -- --rollback` removes unchanged copied files; changed copies are preserved.
+  Keep legacy originals until the user chooses to remove them. Assign any legacy custom scenes
+  to their project manually and update their relative imports.
+
 ## Styles
 
 `style` in `script.json` picks the look; every scene works in both.
@@ -23,7 +57,7 @@ write the reel in it too.
 
 `"host": "character"` puts the user's own cartoon in place of the paper host, in either style,
 with the same poses. It's made once from their photo with the `cartoon-host` skill
-(`.claude/skills/cartoon-host/SKILL.md`) and kept in `public/host/`. Offer it when the user wants
+(`.claude/skills/cartoon-host/SKILL.md`) and kept in `.local/host/`. Offer it when the user wants
 a host that looks like them.
 
 
@@ -37,14 +71,14 @@ makes `.env`, installs VoiceStudio into `./voicestudio`, then runs the doctor). 
 The voice is **VoiceStudio**: free, local, served on `127.0.0.1:3900` from the headless install
 in `./voicestudio` (made by `npm run setup`), or `~/VoiceStudio` if that's where it already is
 (`VOICESTUDIO_DIR` overrides both). When it isn't running, `npm run voice` and `npm run doctor`
-start it in the background themselves (about 30 s, log in `out/voicestudio.log`) and leave it
+start it in the background themselves (about 30 s, log in `.local/logs/voicestudio.log`) and leave it
 running for later reels; don't start it by hand. Default engine is Kokoro (`mlx-audio`, voice
 `af_heart`): Apache-2.0, English, no German. For German or a cloned voice the user must switch
 to OmniVoice and accept its non-commercial licence themselves; never accept a model licence for
 them.
 
 There is no fallback. When VoiceStudio won't answer or start, `npm run voice` stops without
-recording. Stop too: show the user its error and the end of `out/voicestudio.log`, try what the
+recording. Stop too: show the user its error and the end of `.local/logs/voicestudio.log`, try what the
 log points to (`npm run doctor`, a stale process on port 3900), and ask before anything else.
 Never switch to another engine yourself. Only the user picks one, with `VOICE_PROVIDER` in
 `.env`: `elevenlabs` (paid, needs `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`) or `say` (macOS,
@@ -62,10 +96,10 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
   recorded until they've approved the frames.
   1. Do steps 1–2 (a talking head: Transcribe, Find the face and Cut first). If a shot needs a
      scene that doesn't exist yet, name it anyway; its card says "new scene, to write".
-  2. `npm run plan -- <slug>` writes `out/<slug>/plan.html`: one card per shot with its frame,
+  2. `npm run plan -- <slug>` writes `projects/<slug>/preview/plan.html`: one card per shot with its frame,
      line and captions, on-screen text, and the tools that make it. Durations are estimated.
      Show the page to the user (open it in your browser pane or file preview if you have one,
-     else `open out/<slug>/plan.html`) and stop. For each change they ask for ("03: make it a
+     else `open projects/<slug>/preview/plan.html`) and stop. For each change they ask for ("03: make it a
      BigNumber"), edit `script.json`, re-run `plan`, show it again. Voice and render nothing yet.
   3. When they approve: write any new scenes, then step 5 (Look gate; fix what you find
      yourself) without recording the voice: `stills` times every line that has none yet by
@@ -80,16 +114,15 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
 ## Workflow
 
 Pick a short kebab-case slug for the reel (`why-planes-curve`). All its files live in
-`public/reels/<slug>/`.
+`projects/<slug>/`. Create it first with `npm run project -- <slug>`.
 
-A reel stays out of the kit. While making one, write only to `public/reels/<slug>/`,
-`out/<slug>/` and `src/scenes/local/`, all ignored by git. When a kit scene lacks something
+A reel stays out of the kit. While making one, write only inside `projects/<slug>/`, ignored by git. When a kit scene lacks something
 this reel needs, write a local scene instead of changing the kit one. Change kit files (`src/`,
 `scripts/`, `public/sfx/`, the docs) only when the user asks to improve the kit itself.
 
 1. **Plan.** Write the script as 5–9 shots, one spoken line each, 20–45 s total. Follow the
    playbook below. Pick a scene for every shot.
-2. **Write `public/reels/<slug>/script.json`.** Copy the shape of `public/reels/example/script.json`.
+2. **Write `projects/<slug>/working/script.json`.** Copy the shape of `examples/example/script.json`.
    `palette` is one of `clay`, `cobalt`, `forest`, `mono`; `style` is `flat` or `print`;
    `handle` is the user's @handle (ask once if you don't know it, then reuse it).
    `music` is a bed under the voice that dips while a line is spoken: `lofi`, `upbeat`, `chill`
@@ -104,7 +137,7 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
    with `VOICESTUDIO_LANGUAGE` set (`de`, `es`, …).
 4. **Pace gate.** `npm run check -- <slug>`. Fix every `FAIL` (usually by shortening or splitting
    a line) and re-run voice + check until it passes. Treat warnings as a nudge, not a rule.
-5. **Look gate.** `npm run stills -- <slug>` renders one PNG per shot into `out/<slug>/stills/`,
+5. **Look gate.** `npm run stills -- <slug>` renders one PNG per shot into `projects/<slug>/preview/stills/`,
    taken just before the cut when everything is on screen. Read every PNG and check:
    - text is big, fully inside the frame, nothing overlapping or clipped
    - the stage content and the captions don't collide
@@ -115,15 +148,16 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
    single shot with `--shot=03`. Repeat until every still passes.
 
 6. **Render.** `npm run render -- <slug> --draft` for a fast half-size check if you changed a lot,
-   then `npm run render -- <slug>` for the final `out/<slug>/<slug>.mp4`.
+   then `npm run render -- <slug>` for the final `projects/<slug>/export/<slug>.mp4`.
 7. **Motion gate.** `npm run pace -- <slug>` watches the mp4 and lists every stretch where nothing
    on screen changes. Fix every `FAIL` (still over 1.2 s) with a pop, a cue, a zoom or a shorter
    shot, re-render, re-run. A warn in the first 2 s is worth fixing too: that's where people swipe.
-8. **Caption.** Write `out/<slug>/caption.txt`: a 1–2 line post caption in the reel's language,
+8. **Caption.** Write `projects/<slug>/export/caption.txt`: a 1–2 line post caption in the reel's language,
    a question or CTA, and 3–5 relevant hashtags.
-9. **Hand over.** Tell the user the mp4, caption and `out/<slug>/cover.png` (the hook as a cover
+9. **Hand over.** Tell the user the mp4, caption and `projects/<slug>/export/cover.png` (the hook as a cover
    image to pick when posting) paths and how long the reel is. Mention
-   `npm run studio` if they want to scrub through it in the browser (set `slug` in the props panel).
+   `npm run studio -- <slug>` if they want to scrub through it in the browser.
+   Use `npm run dashboard` to review all projects in one local page.
 
 ## Talking head
 
@@ -132,11 +166,11 @@ cut it into a reel instead of writing and voicing one.
 
 1. **Transcribe.** `npm run transcribe -- <slug> <path/to/video>` makes `take.mp4` (30 fps, voice
    levelled to −14 LUFS, denoised when Homebrew ffmpeg is installed), `transcript.json` and
-   `transcript.txt`. The video can live anywhere; only the take is copied into the reel.
+   `transcript.txt`. The video can live anywhere; the original is copied into `raw/` and the processed take is written to `working/`.
    Read `transcript.txt`: one phrase per line with its times, `[um]`-style fillers, pauses, and
    gaps with unworded sound (usually a filler Whisper skipped).
 2. **Find the face.** Extract a frame and look at it
-   (`npx remotion ffmpeg -ss 2 -i public/reels/<slug>/take.mp4 -frames:v 1 out/<slug>/face.png`),
+   (`npx remotion ffmpeg -ss 2 -i projects/<slug>/working/take.mp4 -frames:v 1 projects/<slug>/preview/face.png`),
    then set `focus` to where the face is, 0–1 from left and top (default `[0.5, 0.4]`).
 3. **Cut.** Write `script.json` with `"take": "take.mp4"`. Each shot plays one `clip: [in, out]`
    of the take (seconds) and has `say` = the words in it, spelled right (captions use it).
@@ -240,8 +274,9 @@ theme's colours; a coloured logo or PNG keeps its own.
 ### Writing a new scene
 
 When no scene fits, make one rather than forcing a bad fit. Put it in
-`src/scenes/local/<Name>.tsx` with `export const <Name>`: it loads by itself, git ignores it, and
-it stays out of the kit. Don't register it in `src/scenes/index.ts`. Only when the user asks to
+`projects/<slug>/working/scenes/<Name>.tsx` with `export const <Name>`: it loads by itself, git ignores it, and
+it stays out of the kit. Don't register it in `src/scenes/index.ts`. The bundler selects only this project's scenes.
+Use `../../../../src/` for imports from the kit (for example `../../../../src/components/ui`). Only when the user asks to
 add it to the kit, move it to `src/scenes/`, register it there, give it a default pose in
 `src/poses.ts`, and add it to the table above and to `README.md`. Build it from what's there:
 
@@ -267,7 +302,7 @@ add it to the kit, move it to `src/scenes/`, register it there, give it a defaul
   `setTimeout`: Remotion renders frame by frame.
 
 Read `src/scenes/List.tsx` first; it uses most of these. Check a new scene in both styles.
-Run `npm run typecheck` after.
+Run `npm run typecheck -- <slug>` after to check the kit and this project's scenes.
 
 ## Files
 
@@ -280,20 +315,22 @@ Run `npm run typecheck` after.
   `Music` (the ducked music bed), `Logo` (draws a reel's fetched logo for `icon` props), `Cut`
   (the wipe at each cut), `Character` (the user's own cartoon host).
 - `src/sound.ts`: the sound effect and music names (also used by the scripts).
-- `src/scenes/`: the kit's scenes, registered in `index.ts`. `src/scenes/local/`: scenes for one
+- `src/scenes/`: the kit's scenes, registered in `index.ts`. `projects/<slug>/working/scenes/`: scenes for one
   reel, loaded by themselves, ignored by git.
 - `src/timeline.ts`: joins `script.json` and `voice.json` into timed shots (also used by the scripts).
 - `src/poses.ts`: the print host's poses and each scene's default (also used by `plan`).
 - `src/components/Captions.tsx`: word-by-word captions.
 - `scripts/`: `setup`, `doctor`, `transcribe`, `voice`, `host`, `check`, `plan`, `stills`, `render`,
   `pace`, `sfx` (downloads the CC0 sources, masters them into `public/sfx/` and `public/music/`,
-  writes `public/sfx/CREDITS.md` and an audition page at `out/sfx/index.html`). To swap a sound,
+  writes `public/sfx/CREDITS.md` and an audition page at `.local/cache/sfx-preview/index.html`). To swap a sound,
   change its source in `scripts/sfx.mjs` and re-run it.
 - `public/sfx/`, `public/music/`: the sounds and music beds, all CC0 (public domain); sources in
   `public/sfx/CREDITS.md`.
 - `.claude/skills/brand-logos/`: how to fetch and check a product's current logo for a reel.
 - `.claude/skills/cartoon-host/`: how to turn the user's photo into their own cartoon host.
-- `public/host/`: the user's cartoon, one PNG per pose and `host.json`; ignored by git.
-- `public/reels/`: one folder per reel. Only `example/` is in git; the user's reels stay local.
-- `out/<slug>/`: one folder per reel with `<slug>.mp4`, `caption.txt`, `plan.html` and
-  `stills/`. Safe to delete.
+- `.local/host/`: the user's cartoon, one PNG per pose and `host.json`; ignored by git.
+- `projects/`: private project folders, all ignored. `examples/example/` is the shipped template.
+- `projects/<slug>/preview/`: storyboard, draft and shot stills; regenerable.
+- `projects/<slug>/export/`: final MP4, cover and caption.
+- `projects/<slug>/raw/`: untouched originals; never delete as cache.
+- `projects/<slug>/working/`: authored scripts, processed media and project scenes; preserve these.

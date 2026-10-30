@@ -1,7 +1,7 @@
 // Fetches the kit's sounds and music and masters them into public/sfx and public/music.
 // Every source is CC0 (public domain): fine in the repo, in paid work and in monetised posts,
 // no credit needed. Credits go to public/sfx/CREDITS.md anyway. Downloads are cached in
-// out/sfx-cache; out/sfx/index.html plays every sound so you can judge them by ear.
+// .local/cache/sfx; .local/cache/sfx-preview/index.html plays every sound so you can judge them by ear.
 // Usage: npm run sfx
 import { execFileSync } from "node:child_process";
 import {
@@ -23,7 +23,7 @@ import {
 import { fail, ffmpeg } from "./lib.mjs";
 
 const RATE = 44100;
-const CACHE = "out/sfx-cache";
+const CACHE = ".local/cache/sfx";
 
 /** A Freesound sound by its preview key (`<id>_<user id>`, from the sound's page). */
 const freesound = (key, author, title, options = {}) => {
@@ -335,13 +335,13 @@ ${made.map(row).join("\n")}
 );
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
-mkdirSync("out/sfx", { recursive: true });
+mkdirSync(".local/cache/sfx-preview", { recursive: true });
 writeFileSync(
-  "out/sfx/index.html",
+  ".local/cache/sfx-preview/index.html",
   `<!doctype html><meta charset="utf-8"><title>Techno Reel sounds</title>
 <style>body{font:16px system-ui;margin:32px;max-width:760px}li{display:flex;gap:16px;align-items:center;margin:8px 0}code{width:150px}audio{height:32px}small{color:#777}</style>
 <h1>Techno Reel sounds</h1><ul>
 ${made.map((m) => `<li><code>${esc(m.file)}</code><audio controls preload="none" src="../../public/${esc(m.file)}"></audio><small>${esc(m.title)} · ${esc(m.author)}</small></li>`).join("\n")}
 </ul>`,
 );
-console.log(`✓ ${made.length} sounds in public/sfx and public/music. Listen: out/sfx/index.html`);
+console.log(`✓ ${made.length} sounds in public/sfx and public/music. Listen: .local/cache/sfx-preview/index.html`);

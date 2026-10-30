@@ -76,7 +76,7 @@ if (!renderOnly) {
       );
   } else if (provider === "voicestudio") {
     const hint = voiceStudio.canStart()
-      ? "It is installed but didn't start; see out/voicestudio.log."
+      ? "It is installed but didn't start; see .local/logs/voicestudio.log."
       : `Not installed at ${voiceStudio.dir()}. Run: npm run setup (or set VOICESTUDIO_DIR to an install).`;
     row(false, `VoiceStudio not answering at ${voiceStudio.url()}`, hint);
   }

@@ -1,13 +1,15 @@
+import { projectPaths, createProject, json, saveJson } from "./projects.mjs";
 // Turns a talking-head recording into a take for a reel:
-//   public/reels/<slug>/take.mp4        30 fps, at most 2560 px tall, voice levelled to −14 LUFS
-//   public/reels/<slug>/transcript.json every word with its time in the take
-//   public/reels/<slug>/transcript.txt  the same in phrases, with pauses and unworded sounds,
+//   projects/<slug>/working/take.mp4        30 fps, at most 2560 px tall, voice levelled to −14 LUFS
+//   projects/<slug>/working/transcript.json every word with its time in the take
+//   projects/<slug>/working/transcript.txt  the same in phrases, with pauses and unworded sounds,
 //                                       to pick each shot's clip from
 // Speech recognition is VoiceStudio's (local). Run it again without a video to re-transcribe;
 // --words="Claude, Anthropic, CTO" spells names and jargon the take uses.
 // Usage: npm run transcribe -- <slug> [path/to/video] [--words="…"]
 import {
   existsSync,
+  copyFileSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -15,7 +17,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, resolve, basename, extname, relative } from "node:path";
 import {
   fail,
   ffmpeg,
@@ -31,13 +33,26 @@ loadEnv();
 const usage = 'npm run transcribe -- <slug> [path/to/video] [--words="…"]';
 const [slug, video] = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
 if (!slug) fail(`Usage: ${usage}`);
-const dir = join("public", "reels", slug);
+const paths = projectPaths(slug);
+if (!existsSync(paths.root)) createProject(slug);
+const dir = paths.working;
 const take = join(dir, "take.mp4");
 mkdirSync(dir, { recursive: true });
 
 if (video) {
-  const source = resolve(video.replace(/^~(?=$|\/)/, process.env.HOME));
+  let source = resolve(video.replace(/^~(?=$|\/)/, process.env.HOME));
   if (!existsSync(source)) fail(`${source} not found`);
+  // Import external recordings into the project without overwriting an original.
+  if (!source.startsWith(resolve(paths.raw) + "/")) {
+    const name = basename(source), ext = extname(name), stem = name.slice(0, name.length-ext.length);
+    let destination = join(paths.raw, name), count = 2;
+    while (existsSync(destination)) destination = join(paths.raw, `${stem}-${count++}${ext}`);
+    mkdirSync(paths.raw, { recursive: true });
+    copyFileSync(source, destination);
+    source = resolve(destination);
+  }
+  const metadataPath = join(paths.root, "project.json");
+  saveJson(metadataPath, { ...json(metadataPath, {}), mainRecording: relative(paths.root, source) });
   process.stdout.write("Making take.mp4… ");
   // Noise reduction only exists in a full ffmpeg (brew install ffmpeg); levelling always runs.
   const clean = hasFilters("highpass", "afftdn") ? "highpass=f=70,afftdn=nf=-25," : "";

@@ -21,14 +21,14 @@ export const Root: React.FC = () => (
     calculateMetadata={async ({ props }) => {
       const dir = `reels/${props.slug}`;
       const script = await loadJson<Script>(`${dir}/script.json`);
-      if (!script) throw new Error(`public/${dir}/script.json not found`);
+      if (!script) throw new Error(`projects/${props.slug}/working/script.json not found`);
       const voice = await loadJson<Voice>(`${dir}/voice.json`);
       const reel = buildReel(props.slug, script, voice, props.estimates);
       if (script.host === "character") {
         const character = await loadJson<CharacterConfig>("host/host.json");
         if (!character)
           throw new Error(
-            'public/host/host.json not found. Run: npm run host -- <sheet.png>, or drop "host": "character".',
+            '.local/host/host.json not found. Run: npm run host -- <sheet.png>, or drop "host": "character".',
           );
         reel.character = character;
       }

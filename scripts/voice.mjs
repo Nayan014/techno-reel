@@ -1,3 +1,4 @@
+import { assetPath } from "./projects.mjs";
 // Records one audio file per shot and writes voice.json with word timings.
 // Engine: VoiceStudio (local), or the one VOICE_PROVIDER names; it never falls back to another.
 // Delivery marks in a line (`|`, `||`, `*heavy*`) shape its pauses and weight; see delivery().
@@ -67,7 +68,7 @@ mkdirSync(join(dir, "audio"), { recursive: true });
 const lines = {};
 for (const [i, shot] of script.shots.entries()) {
   const cached = sameVoice ? previous.lines?.[shot.id] : undefined;
-  if (cached?.say === shot.say && existsSync(join("public", cached.audio))) {
+  if (cached?.say === shot.say && existsSync(assetPath(cached.audio))) {
     lines[shot.id] = cached;
     console.log(`  ${shot.id}  cached`);
     continue;
@@ -157,7 +158,7 @@ async function useVoiceStudio() {
   if (!(await voiceStudio.ensure())) {
     fail(
       `VoiceStudio isn't answering at ${url} and couldn't be started from ${voiceStudio.dir()} ` +
-        "(log: out/voicestudio.log). Nothing was recorded: the kit doesn't fall back to another " +
+        "(log: .local/logs/voicestudio.log). Nothing was recorded: the kit doesn't fall back to another " +
         "voice. Get VoiceStudio running and re-run, or pick another engine with VOICE_PROVIDER in .env.",
     );
   }
@@ -232,7 +233,7 @@ async function useVoiceStudio() {
         at += piece.length;
       }
       const wav = writeWav(line, rate);
-      writeFileSync(join("public", audio), wav);
+      writeFileSync(assetPath(audio), wav);
 
       // Every phrase is trimmed to its sound, so the line ends where its audio does.
       const end = round(line.length / rate);
@@ -292,7 +293,7 @@ async function useElevenLabs() {
       );
       if (!res.ok) fail(`ElevenLabs ${res.status}: ${await res.text()}`);
       const { audio_base64, alignment } = await res.json();
-      writeFileSync(join("public", audio), Buffer.from(audio_base64, "base64"));
+      writeFileSync(assetPath(audio), Buffer.from(audio_base64, "base64"));
 
       const words = [];
       let word = null;
@@ -333,7 +334,7 @@ async function useSay() {
       writeFileSync(textFile, text);
       const args = [
         "-o",
-        join("public", audio),
+        assetPath(audio),
         "--data-format=LEI16@44100",
         "-r",
         env.SAY_RATE || "195",
@@ -342,7 +343,7 @@ async function useSay() {
       ];
       if (env.SAY_VOICE) args.push("-v", env.SAY_VOICE);
       execFileSync("say", args);
-      const end = wavSeconds(readFileSync(join("public", audio)));
+      const end = wavSeconds(readFileSync(assetPath(audio)));
       return { end, words: spread(tokenize(text), 0, end), estimated: true };
     },
   };

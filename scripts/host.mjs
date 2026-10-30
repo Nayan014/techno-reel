@@ -1,6 +1,6 @@
 // Turns your cartoon character into the reel's host: one image of the 8 poses in a 4×2 grid on
-// flat magenta becomes public/host/<pose>.png (keyed transparent), plus public/host/host.json
-// with where each pose's mouth is, and out/host/check.png to see those mouths marked. Each figure
+// flat magenta becomes .local/host/<pose>.png (keyed transparent), plus .local/host/host.json
+// with where each pose's mouth is, and .local/cache/host/check.png to see those mouths marked. Each figure
 // is cut along the magenta around it, so a hand reaching past its grid cell stays whole.
 // Run it with no image to redraw the check after editing host.json.
 // Usage: npm run host -- [sheet.png] [--order=idle,point,…] [--pose=shock] [--key=0.3]
@@ -12,7 +12,7 @@ import { join } from "node:path";
 import { HOST_POSES } from "../src/poses.ts";
 import { fail, ffmpeg, hasFilters, option, readJson } from "./lib.mjs";
 
-const DIR = join("public", "host");
+const DIR = join(".local", "host");
 const CONFIG = join(DIR, "host.json");
 const image = process.argv.slice(2).find((arg) => !arg.startsWith("--"));
 const order = option("order", HOST_POSES.join(",")).split(",").map((pose) => pose.trim());
@@ -35,7 +35,7 @@ if (!hasFilters("colorkey", "geq", "drawbox"))
 const SPILL = "max(0,min(r(X,Y),b(X,Y))-g(X,Y))";
 const DESPILL = `geq=r='r(X,Y)-${SPILL}':g='g(X,Y)':b='b(X,Y)-${SPILL}':a='alpha(X,Y)'`;
 
-/** Keys out the magenta of one figure (`crop`, or the whole image) into public/host/<pose>.png. */
+/** Keys out the magenta of one figure (`crop`, or the whole image) into .local/host/<pose>.png. */
 const cut = (pose, crop) =>
   ffmpeg([
     "-loglevel", "error",
@@ -53,7 +53,7 @@ const MARGIN = 8;
 
 /** The sheet as RGB bytes, with its size. */
 const decode = () => {
-  const raw = join("out", "host", "sheet.rgb");
+  const raw = join(".local", "cache", "host", "sheet.rgb");
   const log = ffmpeg(["-y", "-i", image, "-vf", "format=rgb24", "-c:v", "rawvideo", "-f", "image2pipe", raw]);
   const size = log.match(/Video:[^\n]*?\b(\d{2,5})x(\d{2,5})\b/);
   if (!size) fail(`Couldn't read the size of ${image}`);
@@ -127,7 +127,7 @@ const layout = () => {
     let spans = figuresIn(sheet, top, bottom);
     if (!spans) {
       console.log(
-        `! Row ${row + 1}: the figures touch, so it's cut into 4 equal cells. Check out/host/check.png.`,
+        `! Row ${row + 1}: the figures touch, so it's cut into 4 equal cells. Check .local/cache/host/check.png.`,
       );
       spans = [0, 1, 2, 3].map((i) => [
         Math.round((width * i) / 4),
@@ -144,7 +144,7 @@ const layout = () => {
   });
 };
 
-mkdirSync(join("out", "host"), { recursive: true });
+mkdirSync(join(".local", "cache", "host"), { recursive: true });
 if (image) {
   if (!existsSync(image)) fail(`${image} not found`);
   mkdirSync(DIR, { recursive: true });
@@ -180,7 +180,7 @@ writeFileSync(
 );
 
 // Every pose on grey, side by side, with a red bar where host.json puts its mouth.
-const check = join("out", "host", "check.png");
+const check = join(".local", "cache", "host", "check.png");
 ffmpeg([
   "-loglevel", "error",
   "-y",

@@ -26,7 +26,7 @@ import type { Layout, ReelData, Shot, VoiceLine } from "./types";
 
 export type ReelProps = {
   slug: string;
-  /** Filled in by calculateMetadata from public/reels/<slug>/. */
+  /** Filled in by calculateMetadata from projects/<slug>/working/. */
   reel: ReelData | null;
   /** Timing for lines not recorded yet, by shot id: `npm run stills` sends it, a render never. */
   estimates?: Record<string, VoiceLine>;
@@ -93,7 +93,7 @@ const ShotView: React.FC<{
   const Scene = shot.scene ? scenes[shot.scene] : undefined;
   if (shot.scene && !Scene) {
     throw new Error(
-      `Unknown scene "${shot.scene}" in shot ${shot.id}. Add it to src/scenes/index.ts.`,
+      `Unknown scene "${shot.scene}" in shot ${shot.id}. Add it to this project’s working/scenes/.`,
     );
   }
   if (!Scene && !take) throw new Error(`Shot ${shot.id} needs a scene.`);

@@ -38,17 +38,17 @@ declare const require: {
   };
 };
 
-// Scenes written for a single reel live in ./local, which git ignores. Each file
+// The bundler maps this context to projects/<slug>/working/scenes/. Each file
 // `<Name>.tsx` exports `<Name>` and is picked up here without being registered.
 const local = require.context("./local", false, /\.tsx$/);
 for (const key of local.keys().filter((key) => key.startsWith("./"))) {
   const name = key.slice(2, -4);
   const scene = local(key)[name];
   if (!scene)
-    throw new Error(`src/scenes/local/${name}.tsx must export const ${name}.`);
+    throw new Error(`Project scene ${name}.tsx must export const ${name}.`);
   if (scenes[name])
     throw new Error(
-      `src/scenes/local/${name}.tsx: "${name}" is already a kit scene. Rename it.`,
+      `Project scene ${name}.tsx: "${name}" is already a kit scene. Rename it.`,
     );
   scenes[name] = scene;
 }

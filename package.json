@@ -20,9 +20,12 @@
     "stills": "node scripts/stills.mjs",
     "render": "node scripts/render.mjs",
     "pace": "node scripts/pace.mjs",
-    "studio": "remotion studio",
-    "typecheck": "tsc --noEmit",
-    "test": "node --test tests/*.test.mjs"
+    "studio": "node scripts/studio.mjs",
+    "typecheck": "node scripts/typecheck.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "dashboard": "node scripts/dashboard.mjs",
+    "project": "node scripts/project.mjs",
+    "migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.539",

@@ -1,3 +1,4 @@
+import { projectPaths, recordOutput } from "./projects.mjs";
 // Renders one still per shot, just before its cut when everything is on screen, for review.
 // Lines not recorded yet are timed by estimate, so plan mode can show its frames before the voice.
 // Usage: npm run stills -- <slug> [--shot=03] [--scale=0.5]
@@ -9,7 +10,7 @@ import { estimateLines, openReel, option, readJson, reelArgs, settledFrame } fro
 const { slug, dir } = reelArgs("npm run stills -- <slug> [--shot=03] [--scale=0.5]");
 const only = option("shot");
 const scale = Number(option("scale", "0.5"));
-const outDir = join("out", slug, "stills");
+const outDir = join(projectPaths(slug).preview, "stills");
 mkdirSync(outDir, { recursive: true });
 
 const script = readJson(join(dir, "script.json"));
@@ -31,3 +32,5 @@ for (const shot of reel.shots) {
   console.log(`  ${output}  (${shot.scene ?? shot.layout ?? "full"}, frame ${frame}${timing})`);
 }
 console.log(`✓ stills in ${outDir}`);
+
+recordOutput(slug, "stills");

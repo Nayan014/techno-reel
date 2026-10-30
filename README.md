@@ -31,6 +31,53 @@ All on your Mac, all in code, no video editor.
 > 🔱 _Tech is like Ravan's knowledge: enormous power that serves you only if you steer it._
 > This kit puts a writer, a voice, an editor and an animator on your Mac. You stay in charge.
 
+## Local project workspace
+
+Use Claude Code, Gemini CLI, or Codex chat to create and revise your reel. All assistants
+follow `CLAUDE.md` through their repository instruction files. The dashboard is a local
+preview page; it does not call an AI or run production jobs.
+
+```sh
+npm run project -- my-reel
+npm run dashboard
+```
+
+Open http://127.0.0.1:4173. Drop originals into `projects/my-reel/raw/`, then ask your
+assistant to plan or produce the reel. The page refreshes as files change.
+
+```text
+projects/my-reel/
+  project.json  # name, AI-reported stage and next step
+  raw/          # untouched originals
+  preview/      # storyboard, draft.mp4 and shot stills
+  export/       # my-reel.mp4, cover.png and caption.txt
+  working/      # script, transcript, voice, assets and project scenes
+```
+
+Everything for one project stays together. `projects/` and `.local/` (tool caches, logs,
+private host and generated render staging) are ignored by Git. Only the reusable tools,
+dashboard and `examples/example/` template are shared. Git ignores do not prevent your
+chosen AI service from receiving information you provide to it.
+
+The dashboard shows project files, storyboards, shot lines, videos, captions, saved checks,
+and AI-recorded approvals. Feedback and approvals happen in chat. It flags exports as
+outdated when their working inputs change; migrated exports begin as unverified. It binds
+only to localhost and has no uploads, accounts or cloud hosting. Copy the relative project
+path from its page to navigate in your editor or file manager. MOV or unusual codecs may
+need your system player; final H.264 MP4s play in the dashboard.
+
+For an existing installation, run `npm run migrate` to preview the move, then
+`npm run migrate -- --apply`. This copies files without deleting originals, checks for
+conflicts before copying, and is safe to retry. `npm run migrate -- --rollback` removes
+unchanged migration copies; edited copies block rollback. Empty folders and newly created
+project metadata may remain. Keep old folders until you have checked your projects; new
+commands use `projects/`. Legacy custom scenes need to be assigned to a project
+(`working/scenes/`) and their relative imports updated.
+
+The shipped example is copied into your private workspace automatically the first time
+you run an example command. To preview a specific project in Remotion Studio, use
+`npm run studio -- my-reel`; restart Studio to switch projects or refresh its staged assets.
+
 ## ✨ What it does
 
 You type one sentence. You get a finished Instagram reel: animated, with a voice, captions and
@@ -104,7 +151,7 @@ about a minute:
 npm run render -- example
 ```
 
-Open `out/example/example.mp4`. That's the reel in the top row of the picture above.
+Open `projects/example/export/example.mp4`. That's the reel in the top row of the picture above.
 
 ### Enable voice for your own reels
 
@@ -161,15 +208,15 @@ make a reel about why coffee makes some people sleepy
 | 4. checks its own work and fixes problems     | 4. Claude draws every shot and shows the same cards with real pictures          |
 | 5. saves the video                            | 5. you say OK, and only then it records the voice and saves the video           |
 
-**Step 4.** Find your files in the reel's own folder, `out/<name>/`:
+**Step 4.** Find your files in the reel's own folder, `projects/<name>/preview/`:
 
 | File                     | What it is                                         |
 | ------------------------ | -------------------------------------------------- |
-| `out/<name>/<name>.mp4`  | 🎬 the reel                                        |
-| `out/<name>/caption.txt` | 📝 the text for your Instagram post, with hashtags |
-| `out/<name>/cover.png`   | 🖼️ the hook as a cover image for the post          |
-| `out/<name>/stills/`     | 🖼️ one picture per shot, from Claude's check       |
-| `out/<name>/plan.html`   | 🗂️ the plan cards, in plan mode                    |
+| `projects/<name>/export/<name>.mp4`  | 🎬 the reel                                        |
+| `projects/<name>/export/caption.txt` | 📝 the text for your Instagram post, with hashtags |
+| `projects/<name>/export/cover.png`   | 🖼️ the hook as a cover image for the post          |
+| `projects/<name>/preview/stills/`     | 🖼️ one picture per shot, from Claude's check       |
+| `projects/<name>/preview/plan.html`   | 🗂️ the plan cards, in plan mode                    |
 
 That's it. Post the video, paste the caption. 🎉
 
@@ -236,13 +283,13 @@ the text in shot 2 is too long
 
 > 💡 **New Claude session?** Claude doesn't remember old chats. Say the reel's name, for example
 > `in the coffee-sleepy reel, make the hook punchier`. Every reel has its own folder in
-> `public/reels/`. The folder name is the reel's name.
+> `projects/`. The folder name is the reel's name.
 
 ---
 
 ## 👀 Watch it before you post
 
-Open the `.mp4` file in `out/<name>/`. It plays in QuickTime.
+Open the `.mp4` file in `projects/<name>/preview/`. It plays in QuickTime.
 
 Or watch it in your browser, where you can move frame by frame:
 
@@ -323,7 +370,7 @@ either look. Ask Claude for `my own cartoon host`; it walks you through it:
 4. 🎬 Every reel with `"host": "character"` now stars your cartoon. It changes pose on every
    shot and its mouth moves with the voice.
 
-Your cartoon stays on your Mac in `public/host/`, never in git. The host-cutting script processes the supplied image locally; using an image service to create it is your choice.
+Your cartoon stays on your Mac in `.local/host/`, never in git. The host-cutting script processes the supplied image locally; using an image service to create it is your choice.
 
 ---
 
@@ -345,7 +392,7 @@ cd techno-reel && npm run doctor
 
 | Problem                           | Why                                                                | Fix                                                                                       |
 | --------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| "VoiceStudio isn't answering"     | VoiceStudio didn't start, so no voice was recorded                 | Run `npm run doctor`. If VoiceStudio shows ✗, look at `out/voicestudio.log` or ask Claude |
+| "VoiceStudio isn't answering"     | VoiceStudio didn't start, so no voice was recorded                 | Run `npm run doctor`. If VoiceStudio shows ✗, look at `.local/logs/voicestudio.log` or ask Claude |
 | Captions are a bit early or late  | VoiceStudio's speech recognition didn't run, so timing was guessed | Run `npm run doctor`, then say `record the voice again`                                   |
 | The first reel of the day is slow | The voice models are loading                                       | Normal. The next reels are fast                                                           |
 | Text is cut off or too big        | A shot has too many words                                          | Tell Claude `the text in shot 4 doesn't fit`                                              |
@@ -355,8 +402,8 @@ cd techno-reel && npm run doctor
 
 ## 🧰 Without Claude (advanced)
 
-Every reel is one file: `public/reels/<name>/script.json`. Copy
-`public/reels/example/script.json`, change the text, then run these one by one:
+Every reel is one file: `projects/<name>/working/script.json`. Copy
+`examples/example/script.json`, change the text, then run these one by one:
 
 ```bash
 npm run voice -- <name>
@@ -375,14 +422,14 @@ Checks timing. Fix anything marked **FAIL**.
 npm run stills -- <name>
 ```
 
-Saves one picture per shot in `out/<name>/stills/` so you can look at them. Works before the
+Saves one picture per shot in `projects/<name>/preview/stills/` so you can look at them. Works before the
 voice is recorded: a line without one is timed by estimate.
 
 ```bash
 npm run plan -- <name>
 ```
 
-Makes `out/<name>/plan.html`: one card per shot to review. Works before the voice is recorded.
+Makes `projects/<name>/preview/plan.html`: one card per shot to review. Works before the voice is recorded.
 Add `--frames` after `stills` to put the pictures on the cards. To plan first, go
 `plan` → `stills` → `plan --frames`, change `script.json` until you like it, and only then run
 `voice`, `check`, `render` and `pace`.
@@ -391,7 +438,7 @@ Add `--frames` after `stills` to put the pictures on the cards. To plan first, g
 npm run render -- <name>
 ```
 
-Makes the video at `out/<name>/<name>.mp4`.
+Makes the video at `projects/<name>/export/<name>.mp4`.
 
 ```bash
 npm run pace -- <name>
@@ -422,7 +469,7 @@ logo of the product a shot is about (ChatGPT, Claude, Gemini, Cursor…) with `"
 fetches the current official logo for each reel into the reel's folder, so the kit stores none.
 
 Claude can also make new shot types when none fits. Those stay on your Mac in
-`src/scenes/local/`, never in git, unless you ask to add one to the kit.
+`projects/<slug>/working/scenes/`, never in git, unless you ask to add one to the kit.
 
 ---
 
@@ -452,8 +499,8 @@ Claude can also make new shot types when none fits. Those stay on your Mac in
   and [HoliznaCC0](https://holiznacc0.bandcamp.com); `public/sfx/CREDITS.md` lists each one.
   Want trending Instagram audio instead? Say `no music` and add it in the Instagram app.
 - 🔒 **Your reels stay private:** `.gitignore` keeps your own reels, recordings, renders and `.env`
-  out of git. Only `public/reels/example/` is shared.
-- 🎬 **Example:** `public/reels/example/` is a finished reel. Rebuild it with
+  out of git. Only `examples/example/` is shared.
+- 🎬 **Example:** `examples/example/` is a finished reel. Rebuild it with
   `npm run render -- example`.
 - 🤖 **Instructions for Claude** are in `CLAUDE.md`. You don't need to read them.
 

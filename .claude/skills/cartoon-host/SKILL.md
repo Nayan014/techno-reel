@@ -1,13 +1,13 @@
 ---
 name: cartoon-host
-description: Turn the user's photo into their own cartoon presenter for every reel. They make one image of 8 poses with an image AI, `npm run host` cuts it out into public/host/, and you place each pose's mouth so it lip-syncs. Use when the user wants a host or character that looks like them, their own avatar, mascot or cartoon in the reels.
+description: Turn the user's photo into their own cartoon presenter for every reel. They make one image of 8 poses with an image AI, `npm run host` cuts it out into .local/host/, and you place each pose's mouth so it lip-syncs. Use when the user wants a host or character that looks like them, their own avatar, mascot or cartoon in the reels.
 ---
 
 # Your own cartoon host
 
 A reel with `"host": "character"` in `script.json` is presented by the user's own cartoon instead
 of the paper host, in either style. It stands bottom left, pops into a new pose on every shot
-and lip-syncs to the voice. It's set up once and reused by every reel. It lives in `public/host/`,
+and lip-syncs to the voice. It's set up once and reused by every reel. It lives in `.local/host/`,
 which git ignores: it's the user's face, so it never goes into the kit or a commit.
 
 ## 1. The user makes the picture
@@ -54,8 +54,8 @@ npm run host -- <sheet.png>
 
 Look at the sheet first. If the poses come in another order, name them as they appear, left to
 right, top to bottom: `--order=idle,point,present,think,shrug,shock,cheer,wave` (those are the
-cells 1–8 above). This writes `public/host/<pose>.png`, `public/host/host.json` and
-`out/host/check.png`.
+cells 1–8 above). This writes `.local/host/<pose>.png`, `.local/host/host.json` and
+`.local/cache/host/check.png`.
 
 Each figure is cut along the magenta around it, not the grid, so a hand reaching past its cell
 stays whole; every pose gets the same canvas and stands on the same floor. When a row's figures
@@ -67,8 +67,8 @@ same magenta), then replace just it: `npm run host -- <that.png> --pose=shock`.
 
 ## 3. Place the mouths
 
-Read `out/host/check.png`: every pose side by side on grey, with a red bar where `host.json` puts
-its mouth. Read each `public/host/<pose>.png` too, and set in `public/host/host.json`:
+Read `.local/cache/host/check.png`: every pose side by side on grey, with a red bar where `host.json` puts
+its mouth. Read each `.local/host/<pose>.png` too, and set in `.local/host/host.json`:
 
 - `"mouth"`: for each pose, the centre of its closed mouth, `[x, y]` as 0–1 of the image from the
   left and the top.
