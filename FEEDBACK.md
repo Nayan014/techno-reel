@@ -12,3 +12,5 @@ keep one-off creative choices in that reel's project instead of making them glob
   transition; don't show the full path before it is explained.
 - Keep background music comfortably below the voice. Check the actual mix after rendering;
   lower it for a reel when the user requests it, without changing other projects.
+
+- Offer VoiceStudio only in dashboard voice settings. List available model-specific voices with playback; expose model installation status and an explicit download action. Do not offer macOS say or paid ElevenLabs for new reels.

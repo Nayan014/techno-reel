@@ -1,3 +1,4 @@
+import { applyVoiceSettings } from "./settings.mjs";
 import { assetPath } from "./projects.mjs";
 // Records one audio file per shot and writes voice.json with word timings.
 // Engine: VoiceStudio (local), or the one VOICE_PROVIDER names; it never falls back to another.
@@ -45,6 +46,7 @@ const JOIN = 0.04;
 loadEnv();
 const env = process.env;
 const { slug, dir } = reelArgs("npm run voice -- <slug>");
+applyVoiceSettings(readJson(join("projects", slug, "video-settings.json")));
 const script = readJson(join(dir, "script.json"));
 const previous = readJson(join(dir, "voice.json"));
 

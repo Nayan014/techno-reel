@@ -32,10 +32,10 @@ the project. Verify the check on the current render; do not claim that the model
 
 The AI chat drives the workflow. The dashboard (`npm run dashboard`,
 `http://127.0.0.1:4173`) is a local viewer: it can open an export folder on this device,
-but has no AI access, uploads, approvals, or processing actions. Use it to review projects, plans, stills, videos, captions and checks.
+and can save local defaults for new projects, supports local avatar-reference uploads and voice auditions, but has no AI access or approvals. Use it to review projects, plans, stills, videos, captions and checks.
 It refreshes every five seconds. Approvals and feedback happen in this chat.
 
-- Create a project with `npm run project -- <slug> [Display name]`. Existing names are never overwritten.
+- Create a project with `npm run project -- <slug> [Display name]`. Existing names are never overwritten. If dashboard settings have been saved, `projects/<slug>/video-settings.json` captures them at creation. Read that file before writing a script: use its style, palette, handle, host and music as defaults unless the user requests otherwise. For style or palette `auto`, choose a supported value to fit the topic; never put `auto` into script.json. If avatarReference is set, the selected source is `.local/avatar-references/<avatarReference>`; use it when the user asks to create/update the cartoon host, following the cartoon-host guide. A reference upload alone is not a prepared animated host. Map host `character` to `"host": "character"`, `none` to `"host": false`, and `default` to no host override; omit music for `none`, and choose by topic for `auto`. Talking-head music rules still apply. Voice uses the captured settings automatically. Existing projects without this file retain their previous environment configuration.
 - Ask the user to put originals into `projects/<slug>/raw/`; when importing from elsewhere,
   copy rather than move. Never overwrite originals. Select one main recording for talking-head work.
 - Working files live in `projects/<slug>/working/`; previews in `preview/`; finals in `export/`.
@@ -98,11 +98,14 @@ them.
 There is no fallback. When VoiceStudio won't answer or start, `npm run voice` stops without
 recording. Stop too: show the user its error and the end of `.local/logs/voicestudio.log`, try what the
 log points to (`npm run doctor`, a stale process on port 3900), and ask before anything else.
-Never switch to another engine yourself. Only the user picks one, with `VOICE_PROVIDER` in
-`.env`: `elevenlabs` (paid, needs `ELEVENLABS_API_KEY` + `ELEVENLABS_VOICE_ID`) or `say` (macOS,
-robotic, caption timing estimated). Both read the plain line, without its delivery marks.
-
-Settings go in `.env` (copy `.env.example`).
+Never switch to another voice provider yourself. The dashboard offers VoiceStudio only.
+The `say` and `elevenlabs` CLI paths remain for older project compatibility; never offer them
+for new videos. Model/voice choices and install status are available in dashboard Settings.
+Kokoro voices come from VoiceStudio metadata or its local model cache; OmniVoice voices are
+saved profiles. Missing weights download only on the user's explicit dashboard action.
+If a model requires licence acceptance, direct the user to review it in VoiceStudio; never
+accept terms for them.
+Set defaults for new projects in the dashboard; they live in `.local/video-settings.json`. API keys and advanced connection settings remain in `.env` or the process environment. Dashboard settings do not restrict a local assistant’s filesystem access; use host permissions to protect secrets.
 
 ## Modes
 

@@ -1,0 +1,56 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { createDashboard } from '../scripts/dashboard.mjs';
+import { createProject } from '../scripts/projects.mjs';
+import { defaults, saveSettings, applyVoiceSettings } from '../scripts/settings.mjs';
+
+test('settings are protected, validated and captured for new projects', async t => {
+  const original = process.cwd(); const dir = mkdtempSync(join(tmpdir(), 'reel-settings-')); process.chdir(dir);
+  t.after(() => { process.chdir(original); rmSync(dir, {recursive:true, force:true}); });
+  const server = createDashboard(); await new Promise(r => server.listen(0, '127.0.0.1', r));
+  t.after(() => new Promise(r => server.close(r)));
+  const root = `http://127.0.0.1:${server.address().port}`;
+  const headers = {'content-type':'application/json', 'x-dashboard-action':'save-settings', origin:root};
+  const send = (value, h = headers) => fetch(root + '/api/settings', {method:'POST', headers:h, body:JSON.stringify(value)});
+  assert.equal((await send(defaults, {...headers, origin:'https://evil.example'})).status, 403);
+  assert.equal((await send({...defaults, provider:'invalid'})).status, 400);
+  for (const provider of ['say','elevenlabs']) assert.equal((await send({...defaults,provider})).status,400);
+  assert.equal((await send({...defaults, host:'character'})).status, 400);
+  assert.equal((await send({...defaults, provider:'voicestudio', voice:'af_bella', palette:'forest'})).status, 200);
+  createProject('first');
+  saveSettings({...defaults, voice:'another'});
+  const captured = JSON.parse(readFileSync('projects/first/video-settings.json'));
+  assert.equal(captured.voice, 'af_bella'); assert.equal(captured.palette, 'forest');
+  const env = {}; applyVoiceSettings(captured, env);
+  assert.equal(env.VOICE_PROVIDER, 'voicestudio'); assert.equal(env.VOICESTUDIO_VOICE, 'af_bella');
+  const data = await (await fetch(root + '/api/settings')).json();
+  assert.equal(data.settings.voice, 'another'); assert.equal(data.host.ready, false);
+});
+
+test('avatar uploads stay local, validate types and survive as selected references; auditions return audio', async t => {
+  const original = process.cwd(); const dir = mkdtempSync(join(tmpdir(), 'reel-media-')); process.chdir(dir);
+  t.after(() => { process.chdir(original); rmSync(dir, {recursive:true, force:true}); });
+  let audition;
+  const server = createDashboard({sampleVoice: async value => {audition=value; return {bytes:Buffer.from('sample-audio'),type:'audio/wav'};}});
+  await new Promise(r => server.listen(0,'127.0.0.1',r)); t.after(() => new Promise(r => server.close(r)));
+  const root = `http://127.0.0.1:${server.address().port}`;
+  const upload = body => fetch(root+'/api/avatar-reference',{method:'POST',headers:{origin:root,'x-dashboard-action':'upload-avatar'},body});
+  assert.equal((await upload('not an image')).status,400);
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=','base64');
+  const image = await (await upload(png)).json();
+  assert.deepEqual(Buffer.from(await (await fetch(root+image.url)).arrayBuffer()),png);
+  assert.equal((await fetch(root+'/api/avatar-reference',{method:'POST',body:png})).status,403);
+  const value = {...defaults,avatarReference:image.id,style:'auto',palette:'auto'};
+  const saved = await fetch(root+'/api/settings',{method:'POST',headers:{origin:root,'content-type':'application/json','x-dashboard-action':'save-settings'},body:JSON.stringify(value)});
+  assert.equal(saved.status,200); createProject('new-video');
+  assert.equal(JSON.parse(readFileSync('projects/new-video/video-settings.json')).avatarReference,image.id);
+  const state = await (await fetch(root+'/api/settings')).json(); assert.equal(state.references[0].id,image.id);
+  assert.equal(state.settings.style,'auto');
+  assert.equal((await fetch(root+'/api/voice-sample',{method:'POST',body:'{}'})).status,403);
+  const audio = await fetch(root+'/api/voice-sample',{method:'POST',headers:{origin:root,'x-dashboard-action':'preview-voice'},body:JSON.stringify(value)});
+  assert.equal(audio.headers.get('content-type'),'audio/wav'); assert.equal(await audio.text(),'sample-audio'); assert.equal(audition.voice,value.voice);
+  assert.equal((await fetch(root+'/files/../.env')).status,404);
+});

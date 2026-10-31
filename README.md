@@ -149,13 +149,8 @@ The default is **Kokoro / af_heart**, running locally through VoiceStudio on App
 It starts automatically when needed. Write a script, and the workflow generates speech and
 word timings for captions. No voice cloning is needed to get started.
 
-Change the preset in `.env`, then ask your assistant to record the reel again:
-
-```dotenv
-VOICE_PROVIDER=voicestudio
-VOICESTUDIO_MODEL=mlx-audio
-VOICESTUDIO_VOICE=af_heart
-```
+Choose the voice engine and voice name in dashboard Settings before creating a project.
+For projects created before settings were saved, the `.env` voice configuration still applies.
 
 Ask for delivery changes in chat: `Pause before the payoff in shot 3` or
 `Say the last two words more slowly`. Delivery marks stay out of the captions.
@@ -167,21 +162,14 @@ VoiceStudio integration also supports **OmniVoice**, which adds those capabiliti
 
 1. Set up OmniVoice in VoiceStudio and personally review and accept its **non-commercial licence**.
 2. Create a saved voice profile in VoiceStudio using your reference recording.
-3. Set the model and saved profile in `.env`:
-
-```dotenv
-VOICESTUDIO_MODEL=omnivoice
-VOICESTUDIO_VOICE=your-saved-profile-name-or-id
-VOICESTUDIO_LANGUAGE=de
-```
+3. In dashboard Settings, choose OmniVoice and enter the saved profile name or ID before creating a project. Set `VOICESTUDIO_LANGUAGE=de` in `.env` for German caption timing, or use the relevant language code.
 
 Use the language code for your reel; `de` is the German example. Model setup and licence
 acceptance happen in VoiceStudio. Ask your assistant for help with your installation.
 
-### Other voice providers
+### Legacy voice providers
 
-Pick one with `VOICE_PROVIDER` in `.env`, then run `npm run setup`; it skips VoiceStudio for
-the others. Setup creates `.env` on its first run, or copy it yourself: `cp .env.example .env`.
+The dashboard offers VoiceStudio only for new projects. Older CLI integrations remain for compatibility. Setup and doctor still use `VOICE_PROVIDER` in `.env` to determine which installation to check. Setup creates `.env` on its first run, or copy it yourself: `cp .env.example .env`.
 
 | Provider | What you need |
 | --- | --- |
@@ -300,7 +288,8 @@ A reel is one `script.json`: a few top-level choices and one entry per shot.
 
 | To change | Edit |
 | --- | --- |
-| Voice, engine, speed, language | `.env` (every setting is explained in [.env.example](.env.example)) |
+| Voice and engine for new projects | Dashboard Settings |
+| Advanced voice connection, speed, language and keys | `.env` (see [.env.example](.env.example)) |
 | Colours, styles, Instagram safe area | `src/theme.ts` |
 | A scene just for one reel | `projects/<slug>/working/scenes/<Name>.tsx`; it loads by itself |
 | The kit's scenes | `src/scenes/`, registered in `src/scenes/index.ts` |
@@ -360,3 +349,13 @@ Made by **[Nayan Vekariya](https://vekariya.ai.studio/)** ·
 [Techno Ravan on YouTube](https://www.youtube.com/@techno_ravan) ·
 [Instagram](https://www.instagram.com/techno_ravan) ·
 [LinkedIn](https://www.linkedin.com/in/nayan-vekariya/)
+
+### Defaults for new videos
+
+Open **Settings** in the local dashboard to set the presenter, voice engine and voice ID, style, palette, music and social handle. Settings are stored in `.local/video-settings.json`, and captured in `projects/<slug>/video-settings.json` when a project is created. Voice selection is applied by the voice command; the assistant uses the visual and music defaults when writing the script. You can override them for an individual reel. Existing projects are not changed.
+
+The avatar status checks for the character files in `.local/host/`. Ask the assistant to create a cartoon host from your photo to set it up. VoiceStudio's OmniVoice requires you to review its non-commercial licence in VoiceStudio before downloading or using it. Keys and advanced connection settings remain in `.env` or the process environment, and are not displayed in the dashboard. Moving settings out of `.env` does not itself restrict an assistant's filesystem access; configure your assistant's permissions to protect secrets.
+
+Settings include local reference-image uploads, a preview of the prepared avatar, voice auditions (VoiceStudio models must be downloaded before previewing), and style sketches. Style and palette can be left to AI; it resolves these to supported script values for each topic. The project overview shows its actual script and recorded voice choices below the status card. Uploaded photos remain reference images until the animated poses are prepared with the cartoon-host workflow.
+
+The voice picker loads all discovered Kokoro presets (54 on the current installation) and saved OmniVoice profiles from VoiceStudio. Model status includes installed state, estimated download size, and download progress. Missing weights can be downloaded from Settings after any required licence review in VoiceStudio. New installations use `./voicestudio`; an existing `~/VoiceStudio` installation is reused. Model weights live in VoiceStudio’s configured Hugging Face cache and do not need a second copy in the reel repository.

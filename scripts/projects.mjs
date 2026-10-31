@@ -1,3 +1,4 @@
+import { readSettings } from './settings.mjs';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, cpSync, readdirSync, statSync, lstatSync, rmSync } from 'node:fs';
 import { resolve, join, sep } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -20,6 +21,8 @@ export function createProject(slug, name = slug) {
         throw new Error(`Project already exists: ${p.root}`);
     for (const path of [p.raw, p.preview, p.exports, p.working, p.scenes])
         mkdirSync(path, { recursive: true });
+    const settings = readSettings();
+    if (settings) saveJson(join(p.root, 'video-settings.json'), settings);
     saveJson(join(p.root, 'project.json'), { version: 1, name, createdAt: new Date().toISOString(), mode: 'plan', stage: 'new' });
     return p;
 }
