@@ -289,7 +289,7 @@ A reel is one `script.json`: a few top-level choices and one entry per shot.
 | `npm run render -- <slug> [--draft]` | Final MP4 and cover; `--draft` is half size and fast |
 | `npm run pace -- <slug> [--draft]` | Motion gate: flags anything still for over 1.2 s |
 | `npm run studio -- <slug>` | Scrub and inspect the reel in Remotion Studio |
-| `npm run dashboard` | Read-only overview of every project at `127.0.0.1:4173` |
+| `npm run dashboard` | Local project overview at `127.0.0.1:4173`, with an open-folder shortcut |
 | `npm run transcribe -- <slug> <video>` | Talking head: level, denoise and transcribe your recording |
 | `npm run host -- <sheet.png>` | Cut a cartoon pose sheet into your presenter |
 | `npm run sfx` | Re-download and master the sound effects and music |

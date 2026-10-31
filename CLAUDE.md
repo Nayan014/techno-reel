@@ -31,8 +31,8 @@ the project. Verify the check on the current render; do not claim that the model
 ## Local projects and dashboard
 
 The AI chat drives the workflow. The dashboard (`npm run dashboard`,
-`http://127.0.0.1:4173`) is a read-only local viewer: no AI access, uploads, approvals,
-or processing actions. Use it to review projects, plans, stills, videos, captions and checks.
+`http://127.0.0.1:4173`) is a local viewer: it can open an export folder on this device,
+but has no AI access, uploads, approvals, or processing actions. Use it to review projects, plans, stills, videos, captions and checks.
 It refreshes every five seconds. Approvals and feedback happen in this chat.
 
 - Create a project with `npm run project -- <slug> [Display name]`. Existing names are never overwritten.

@@ -1,10 +1,11 @@
 import { createServer } from 'node:http';
+import { execFile } from 'node:child_process';
 import { createReadStream, existsSync, realpathSync, statSync, readdirSync } from 'node:fs';
 import { resolve, join, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { projectPaths, filesUnder, json, fingerprint } from './projects.mjs';
 const ui = fileURLToPath(new URL('../dashboard/', import.meta.url));
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.txt': 'text/plain; charset=utf-8', '.mp4': 'video/mp4', '.mov': 'video/quicktime', '.webm': 'video/webm', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.txt': 'text/plain; charset=utf-8', '.mp4': 'video/mp4', '.mov': 'video/quicktime', '.webm': 'video/webm', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4' };
 const safeJson = (path, errors) => { try {
     return json(path);
 }
@@ -29,15 +30,35 @@ export function listProjects() {
         return { slug: e.name, name: metadata.name || e.name, stage: metadata.stage || 'new', mode: metadata.mode || 'plan', nextAction: metadata.nextAction || 'Continue in your AI chat.', updated, files, script, errors, freshness, checks: Object.fromEntries(Object.entries(checks).map(([key, value]) => [key, { ...value, current: value?.fingerprint === current }])), approvals: Object.fromEntries(Object.entries(approvals).map(([key, value]) => [key, { ...value, current: value?.fingerprint === current }])) };
     }).sort((a, b) => b.updated.localeCompare(a.updated));
 }
-export function createDashboard() {
+// Opening a folder is a local UI action; never pass project names to a shell.
+const openFolder = (path, callback) => {
+    const command = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'explorer.exe' : 'xdg-open';
+    execFile(command, [path], callback);
+};
+export function createDashboard({ revealFolder = openFolder } = {}) {
     return createServer((req, res) => {
         res.setHeader('X-Content-Type-Options', 'nosniff');
         res.setHeader('Cache-Control', 'no-store');
         res.setHeader('Referrer-Policy', 'no-referrer');
-        // Block cross-origin access and DNS rebinding; no write routes exist.
+        // Block cross-origin access and DNS rebinding.
         if (!/^127\.0\.0\.1(?::\d+)?$/.test(req.headers.host || '')) {
             res.writeHead(403);
             res.end();
+            return;
+        }
+        const url = new URL(req.url, 'http://127.0.0.1');
+        const openMatch = /^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/open-export$/.exec(url.pathname);
+        if (req.method === 'POST' && openMatch) {
+            // A same-origin, custom-header request cannot be submitted by a cross-site form.
+            if (req.headers.origin !== `http://${req.headers.host}` || req.headers['x-dashboard-action'] !== 'open-folder') {
+                res.writeHead(403); res.end(); return;
+            }
+            try {
+                const root = realpathSync(projectPaths(openMatch[1]).root);
+                const folder = realpathSync(join(root, 'export'));
+                if (!folder.startsWith(root + sep) || !statSync(folder).isDirectory()) throw new Error('Missing');
+                revealFolder(folder, error => { res.writeHead(error ? 500 : 204); res.end(); });
+            } catch { res.writeHead(404); res.end(); }
             return;
         }
         if (!['GET', 'HEAD'].includes(req.method)) {
@@ -46,7 +67,6 @@ export function createDashboard() {
             return;
         }
         try {
-            const url = new URL(req.url, 'http://127.0.0.1');
             if (url.pathname === '/api/projects') {
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(listProjects()));
@@ -69,7 +89,7 @@ export function createDashboard() {
                 res.setHeader('Content-Security-Policy', "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; media-src 'self'");
             }
             else {
-                const name = { '/': 'index.html', '/app.js': 'app.js', '/style.css': 'style.css' }[url.pathname];
+                const name = { '/': 'index.html', '/app.js': 'app.js', '/captions.mjs': 'captions.mjs', '/style.css': 'style.css' }[url.pathname];
                 if (!name)
                     throw new Error('Missing');
                 path = join(ui, name);

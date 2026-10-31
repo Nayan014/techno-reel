@@ -78,6 +78,27 @@ test('migration preserves sources, retries safely, and refuses conflicts before 
     assert.ok(!existsSync('projects/one/export/one.mp4'));
     assert.ok(existsSync('out/one/one.mp4'));
 });
+test('dashboard opens only a project export folder for a same-origin action', async t => {
+    fixture(t);
+    const p = createProject('one');
+    let opened;
+    const server = createDashboard({revealFolder: (path, done) => { opened = path; done(null); }});
+    await new Promise(r => server.listen(0, '127.0.0.1', r));
+    t.after(() => new Promise(r => server.close(r)));
+    const root = `http://127.0.0.1:${server.address().port}`;
+    const endpoint = root + '/api/projects/one/open-export';
+    const headers = {origin: root, 'x-dashboard-action': 'open-folder'};
+    assert.equal((await fetch(endpoint, {method:'POST', headers:{...headers, origin:'https://evil.example'}})).status, 403);
+    assert.equal((await fetch(endpoint, {method:'POST', headers:{origin:root}})).status, 403);
+    assert.equal(opened, undefined);
+    assert.equal((await fetch(endpoint, {method:'POST', headers})).status, 204);
+    assert.equal(opened, resolve(p.exports));
+    assert.equal((await fetch(root + '/api/projects/missing/open-export', {method:'POST', headers})).status, 404);
+    mkdirSync('elsewhere');
+    rmSync(p.exports, {recursive:true});
+    symlinkSync(resolve('elsewhere'), p.exports);
+    assert.equal((await fetch(endpoint, {method:'POST', headers})).status, 404);
+});
 test('dashboard serves video ranges, blocks writes, hostile hosts and symlink escapes', async (t) => {
     const put = fixture(t);
     const p = createProject('one');
