@@ -67,6 +67,9 @@ Choose how much you want to review:
 | **Auto** | The assistant writes, voices, animates and checks the reel, then exports it. |
 | **Plan** | Review the storyboard, then real shot stills. Voice and final rendering wait for your approval. |
 
+The assistant keeps updates brief and offers choice buttons for mode and review decisions when
+the chat supports them. Otherwise, reply in text. You can always describe changes in your own words.
+
 Find the finished files in `projects/<slug>/export/`. To revise them, tell your assistant:
 `In sleep-tips, make the hook punchier`.
 

@@ -9,6 +9,24 @@ When the user asks for a reel, first ask **Auto** or **Plan** (see **Modes**), t
 workflow below. Ask nothing else unless the topic is missing. Reply in the user's language and
 write the reel in it too.
 
+## Conversation style
+
+- Keep updates, questions and handovers short and direct. Lead with the result or the
+  decision needed; include details only when they help the user act.
+- When a question has clear choices, use the chat host's native choice buttons if available
+  and permitted. For Plan reviews, offer **Approve** and **Revise**; invite the user to say
+  what to change. For mode selection offer **Auto** and **Plan**. Never simulate buttons as
+  plain text or treat a default selection as approval. If the host has no suitable choice
+  control, ask the same concise question in text. Follow the host's tool and approval rules.
+
+
+## Learn from feedback
+
+Read `FEEDBACK.md` before creating or revising a reel. When the user gives feedback, fix the
+current reel and record the generalizable preference or failure as a short actionable check
+in that file. Merge duplicates, preserve specific context, and keep one-off choices inside
+the project. Verify the check on the current render; do not claim that the model trained itself.
+
 
 ## Local projects and dashboard
 
