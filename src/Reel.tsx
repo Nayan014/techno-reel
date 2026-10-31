@@ -2,6 +2,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Html5Audio,
+  Img,
   Sequence,
   interpolate,
   spring,
@@ -12,7 +13,6 @@ import {
 import { Background } from "./components/Background";
 import { Captions } from "./components/Captions";
 import { Character } from "./components/Character";
-import { Cut } from "./components/Cut";
 import { Handle } from "./components/Handle";
 import { Host } from "./components/Host";
 import { Music } from "./components/Music";
@@ -43,6 +43,12 @@ export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
     <ThemeContext.Provider value={theme}>
       <AbsoluteFill style={{ fontFamily: body, color: theme.ink }}>
         <Background />
+        {reel.background && (
+          <AbsoluteFill>
+            <Img src={staticFile(`reels/${slug}/${reel.background}`)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <AbsoluteFill style={{ background: "linear-gradient(to bottom, rgba(243,238,230,0.12), rgba(243,238,230,0.86) 31%, rgba(243,238,230,0.86) 72%, rgba(243,238,230,0.20))" }} />
+          </AbsoluteFill>
+        )}
         {reel.shots.map((shot, i) => (
           <Sequence
             key={shot.id}
@@ -67,7 +73,7 @@ export const Reel: React.FC<ReelProps> = ({ slug, reel }) => {
             <Host shots={reel.shots} />
           ))}
         {reel.music && <Music name={reel.music} shots={reel.shots} />}
-        <Handle text={reel.handle} />
+        {reel.handle?.trim() && <Handle text={reel.handle.trim()} />}
       </AbsoluteFill>
     </ThemeContext.Provider>
   );
@@ -187,7 +193,6 @@ const ShotView: React.FC<{
         />
       )}
       {snapAt !== undefined && <Sfx name="whip" at={snapAt} volume={0.25} />}
-      {whoosh && <Cut seed={index} />}
     </ShotContext.Provider>
   );
 };

@@ -327,8 +327,7 @@ Run `npm run typecheck -- <slug>` after to check the kit and this project's scen
 
 ## Files
 
-- `src/Reel.tsx`: lays shots end to end, adds voice, captions, a whoosh and a wipe between shots
-  (glitch bars in flat, a paper swipe and halftone dots in print), each shot's snap `zoom`, the
+- `src/Reel.tsx`: lays shots end to end, adds voice, captions, a whoosh between shots with clean cuts, each shot's snap `zoom`, the
   music bed, handle, the print host, and on a talking head the take framed by each shot's
   `layout`.
 - `src/theme.ts`: palettes, the two styles (`makeTheme`) and the safe-area `LAYOUT`.

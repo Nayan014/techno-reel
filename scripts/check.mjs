@@ -80,7 +80,7 @@ if (reel) {
     failure(
       `"host": "character" but .local/host/ has no ${lost.join(", ")}. Run: npm run host -- <sheet.png>`,
     );
-  if (/yourhandle/i.test(reel.handle))
+  if (/yourhandle/i.test(reel.handle ?? ""))
     warning(`Handle is still "${reel.handle}".`);
   if (shots.some((shot) => shot.estimated))
     warning(

@@ -14,3 +14,7 @@ keep one-off creative choices in that reel's project instead of making them glob
   lower it for a reel when the user requests it, without changing other projects.
 
 - Offer VoiceStudio only in dashboard voice settings. List available model-specific voices with playback; expose model installation status and an explicit download action. Do not offer macOS say or paid ElevenLabs for new reels.
+
+- Hide the handle completely when none is supplied; inspect the top of the rendered frame.
+- Use clean shot cuts without flickering or glitch overlays; inspect transitions in playback.
+- Give each reel a visual theme tied to its subject, using relevant images or original illustrations when appropriate; avoid generic plain-paper backgrounds.

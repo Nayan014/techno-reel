@@ -36,7 +36,9 @@ export type Script = {
   palette: PaletteName;
   /** Default "flat". */
   style?: StyleName;
-  handle: string;
+  handle?: string;
+  /** Optional project-local image behind the scenes. */
+  background?: string;
   /** Print style: false hides the paper host. "character": your own cartoon (`npm run host`)
    * hosts instead, in either style. */
   host?: boolean | "character";
