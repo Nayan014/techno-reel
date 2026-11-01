@@ -41,6 +41,7 @@ Never use a raw video frame (frame 0) as the cover. High-performing social posts
 3. **Minimal Text & Clutter-Free**:
    - Keep cover posters clean, bold, and minimal. Avoid cluttering with unnecessary kicker tags, secondary taglines, or CTA buttons ("Full story inside", "Watch now").
    - **No Social Handles**: Do not include `@handle` inside the cover image; platforms already display the creator profile and handle alongside the post.
+   - Keep the question visible, but do not reveal its answer on the cover. An optional short, intriguing hint can suggest the topic without giving away the payoff.
 4. **Typography & High-Impact Styling**:
    - Use bold display typography (`display` / Anton or Bricolage) with clean contrast and subtle text lift.
    - Use multi-tone colored words or a single slanted badge card for maximum punch (e.g., `WHY` in white, `TECHNO` in cyber cyan, `RAVAN?` on an angled terracotta badge).
@@ -48,3 +49,4 @@ Never use a raw video frame (frame 0) as the cover. High-performing social posts
    - For the supporting takeaway line, use a translucent frosted glass card (`background: rgba(255, 255, 255, 0.08)`, `backdropFilter: blur(24px)`, `border: 1.5px solid rgba(255, 255, 255, 0.22)`). This ensures high legibility while allowing the background artwork to remain visible and immersive.
 6. **Export**:
    - Save the finalized cover image as `projects/<slug>/export/cover.png`.
+   - Rendering the reel generates a frame-based cover, so regenerate the dedicated poster after each final video render and verify the final export.

@@ -7,4 +7,5 @@ When broad or generalizable improvements to the project are requested, move them
 ---
 
 ### Active Fine-Tuning Notes:
+ - Why Techno Ravan: keep the opening highlight to one landing; retain the cover's question and visual style, with a hint that does not reveal the answer.
 *(Record creator-specific reel revisions and one-off stylistic choices here during video editing)*

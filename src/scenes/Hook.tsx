@@ -1,7 +1,7 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { Sfx, fitText } from "../components/ui";
-import { useShot, useTheme } from "../context";
+import { useTheme } from "../context";
 
 type Props = {
   /** 1–3 short lines, the words people read before they decide to stay. */
@@ -18,14 +18,13 @@ const HOT_KICK = 0.5;
 
 /**
  * Giant headline, readable from the very first frame (it's also the reel's cover), that hits
- * word by word and lands its accent again on the last spoken word, so the hook never rests.
+ * word by word, with one landing per word.
  * Made for shot one; set `"captions": false`.
  */
 export const Hook: React.FC<Props> = ({ lines, highlight }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const theme = useTheme();
-  const shot = useShot();
   const hot = new Set(
     (highlight ?? "").split(/\s+/).filter(Boolean).map(clean),
   );
@@ -39,7 +38,6 @@ export const Hook: React.FC<Props> = ({ lines, highlight }) => {
     theme.displayWidth,
   );
   const firstHot = rows.flat().findIndex((word) => hot.has(clean(word)));
-  const count = rows.flat().length;
   // 1 the frame something hits, settling back to 0 with a little overshoot.
   const kick = (at: number) =>
     frame < at
@@ -50,15 +48,7 @@ export const Hook: React.FC<Props> = ({ lines, highlight }) => {
           fps,
           config: { damping: 11, stiffness: 240, mass: 0.5 },
         });
-  // Second hit on the payoff: the last spoken word, once every word has landed.
-  const last = shot.words.at(-1);
-  const again = Math.max(
-    count * STAGGER + 11,
-    Math.round((last?.start ?? 0) * fps),
-  );
-  const rehit = again < shot.frames - 4 ? kick(again) : 0;
-  const zoom =
-    interpolate(frame, [0, 150], [1, 1.07]) + (firstHot < 0 ? rehit * 0.05 : 0);
+  const zoom = interpolate(frame, [0, 150], [1, 1.07]);
   let index = 0;
 
   return (
@@ -78,7 +68,6 @@ export const Hook: React.FC<Props> = ({ lines, highlight }) => {
             const delay = 1 + index++ * STAGGER;
             const isHot = hot.has(clean(word));
             const hit = kick(delay) * (isHot ? HOT_KICK : KICK);
-            const punch = isHot ? rehit * KICK : 0;
             return (
               <span
                 key={delay}
@@ -88,7 +77,7 @@ export const Hook: React.FC<Props> = ({ lines, highlight }) => {
                   fontSize: size,
                   lineHeight: 1.08,
                   textTransform: "uppercase",
-                  transform: `scale(${1 + hit + punch}) rotate(${isHot ? -3 + punch * 12 : 0}deg)`,
+                  transform: `scale(${1 + hit}) rotate(${isHot ? -3 : 0}deg)`,
                   color: isHot ? theme.card : theme.ink,
                   background: isHot ? theme.accent : undefined,
                   padding: isHot ? `0 ${size * 0.14}px` : undefined,
@@ -104,7 +93,6 @@ export const Hook: React.FC<Props> = ({ lines, highlight }) => {
       ))}
       <Sfx name="whip" volume={0.25} />
       <Sfx name="impact" at={1 + Math.max(0, firstHot) * STAGGER} volume={0.35} />
-      {again < shot.frames - 4 && <Sfx name="pop" at={again} volume={0.25} />}
     </div>
   );
 };

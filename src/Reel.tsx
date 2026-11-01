@@ -109,7 +109,8 @@ const ShotView: React.FC<{
   const whoosh =
     previous && (Scene || layoutOf(previous, Boolean(take)) === "graphic");
   const spoken = Math.round(shot.end * fps);
-  const [snapAt] = shot.zoom
+  // Hook already animates its headline; a second stage snap repeats that beat.
+  const [snapAt] = shot.zoom && shot.scene !== "Hook"
     ? cueFrames(shot.words, [shot.zoom], fps, shot.frames)
     : [];
   const zoom =

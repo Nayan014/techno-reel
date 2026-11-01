@@ -11,6 +11,7 @@ These standards govern animation rendering, component staging, and audio-visual 
 
 ## 1. Typography & Motion
 - **Highlighted Words**: Animate a highlighted word once per intended beat. Avoid double landings, redundant pop springs, or secondary bounces unless explicitly requested.
+- **Hook beats**: The Hook scene lands each word once. Do not add a second payoff hit or a shot-level zoom to the Hook; inspect the opening at playback speed for repeated movement and sound.
 - **Motion Verification**: Inspect the hook and each shot at full playback speed and frame-by-frame. No element should sit completely still for more than 1.2 s.
 - **Pacing**: Follow the Motion Gate (`npm run pace -- <slug>`). Stretches over 1.2 s fail; the opening 2 s must maintain constant visual engagement.
 
