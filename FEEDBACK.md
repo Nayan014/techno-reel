@@ -1,20 +1,10 @@
-# Reel feedback and checks
+# Creator & Video Editing Feedback
 
-Use this file as a short, maintained record of reusable preferences and mistakes. It is a
-workflow memory, not automatic model training. For each reel, apply the relevant checks;
-keep one-off creative choices in that reel's project instead of making them global rules.
+This file is a fine-tuning log for active video editing sessions. When modifying a video in progress, note down specific creator preferences and creative tweaks here so they are preserved across editing iterations.
 
-- Animate a highlighted word once per intended beat. Avoid a second landing or spring bounce
-  unless the user asks for it. Inspect the whole hook at playback speed and frame by frame.
-- Clock hands must match the displayed time. Use a centered, legible clock graphic and inspect
-  it at phone size.
-- In a sequence or flow, reveal each arrow after its source is visible, timed to the spoken
-  transition; don't show the full path before it is explained.
-- Keep background music comfortably below the voice. Check the actual mix after rendering;
-  lower it for a reel when the user requests it, without changing other projects.
+When broad or generalizable improvements to the project are requested, move them into the appropriate skill files in `.claude/skills/` (such as `reel-visuals`, `reel-captions`, `reel-animation`, `brand-logos`, or `cartoon-host`) so the project skills grow permanently.
 
-- Offer VoiceStudio only in dashboard voice settings. List available model-specific voices with playback; expose model installation status and an explicit download action. Do not offer macOS say or paid ElevenLabs for new reels.
+---
 
-- Hide the handle completely when none is supplied; inspect the top of the rendered frame.
-- Use clean shot cuts without flickering or glitch overlays; inspect transitions in playback.
-- Give each reel a visual theme tied to its subject, using relevant images or original illustrations when appropriate; avoid generic plain-paper backgrounds.
+### Active Fine-Tuning Notes:
+*(Record creator-specific reel revisions and one-off stylistic choices here during video editing)*

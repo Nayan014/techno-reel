@@ -20,12 +20,11 @@ write the reel in it too.
   control, ask the same concise question in text. Follow the host's tool and approval rules.
 
 
-## Learn from feedback
+## Learn from feedback and grow skills
 
-Read `FEEDBACK.md` before creating or revising a reel. When the user gives feedback, fix the
-current reel and record the generalizable preference or failure as a short actionable check
-in that file. Merge duplicates, preserve specific context, and keep one-off choices inside
-the project. Verify the check on the current render; do not claim that the model trained itself.
+- **During Video Editing**: When the user requests tweaks or modifications to a specific reel, record actionable preferences in `FEEDBACK.md` so they are remembered during future edits for that creator.
+- **Project & Workflow Improvements**: When the user requests structural improvements to how videos, assets, or processes are generated, codify and move those notes into the dedicated skill files under `.claude/skills/` (e.g. `reel-visuals`, `reel-captions`, `reel-animation`, `brand-logos`, `cartoon-host`). Keep `FEEDBACK.md` focused on active creator fine-tuning while skills evolve the kit overall.
+- Verify checks on the current render; do not claim that the model trained itself.
 
 
 ## Local projects and dashboard
