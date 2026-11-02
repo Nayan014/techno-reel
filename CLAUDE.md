@@ -178,8 +178,10 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
    shot, re-render, re-run. A warn in the first 2 s is worth fixing too: that's where people swipe.
 8. **Platform captions.** Read `.claude/skills/reel-captions/SKILL.md` before writing post copy.
    Write separate Instagram and YouTube sections in `projects/<slug>/export/caption.txt`.
-   Instagram needs its own caption, comment CTA and hashtags; YouTube needs a distinct title,
-   description, subscribe CTA and hashtags. Never hand over one generic caption for both.
+   Instagram needs its own brief caption and hashtags; YouTube needs a distinct title,
+   short description and hashtags. Use natural, easy-to-scan language: a quick takeaway, not
+   every detail or figure from the reel. A question or CTA is optional; avoid stacking them.
+   Never hand over one generic caption for both.
    Check both sections are complete and contain no invented handles before marking exported.
 9. **Cover.** Read `.claude/skills/reel-visuals/SKILL.md` during planning, so the cover is part
    of the initial visual review. Design a purposeful poster with a clear topic, short headline

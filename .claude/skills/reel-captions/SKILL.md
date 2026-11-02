@@ -1,30 +1,41 @@
 ---
 name: reel-captions
-description: Standards for generating dual platform social media captions for Instagram Reels and YouTube Shorts.
+description: Write separate, concise Instagram and YouTube captions for Techno Reel, with a natural voice and a quick summary rather than a transcript.
 ---
 
-# Reel Captions: Dual Platform Standards
+# Platform captions
 
-Every exported reel must include dedicated, platform-optimized copy in `projects/<slug>/export/caption.txt`. Do not provide generic or single-platform captions.
+Read this guide when writing or revising post copy. Every exported reel needs separate
+Instagram and YouTube sections in `projects/<slug>/export/caption.txt` for the dashboard.
 
----
+## Voice and length
 
-## Caption File Format
+- Write like a person sharing an interesting technology update: plain words, short sentences,
+  natural phrasing. Make the topic and why it matters clear at a glance.
+- Default to 2–3 short sentences (roughly 30–60 words) per platform, excluding the title and
+  hashtags. Use less when it says enough; expand only when the creator asks or accuracy needs it.
+- Summarize the takeaway. Do not repeat the script, list every number or explain every chart.
+  Include at most one standout figure when useful. Keep research and detailed calculations in
+  source notes, not in the caption.
+- Avoid canned AI phrasing, formal report language, repeated disclaimers, filler, forced hype,
+  excessive dashes and stacked calls to action. Do not claim certainty to make the copy shorter.
+- Emojis are optional, never required. Use at most one when it fits the creator’s voice.
+- Use one natural question or CTA when useful; do not add both a comment prompt and a follow
+  request automatically. The channel is about technology and AI, not investing news.
 
-Structure `projects/<slug>/export/caption.txt` with clear delimiters:
+## Platform format
+
+Use these section labels so the copy remains easy to find and copy:
 
 ```text
 ====================
 INSTAGRAM
 ====================
+[Short conversational hook and quick takeaway, with readable line breaks.]
 
-[Hook line with emoji]
+[Optional natural question or CTA.]
 
-[Short 2-3 paragraph breakdown connecting the topic's core ideas]
-
-[Clear call-to-action question to provoke comments] 👇
-
-[Curated, relevant hashtags: 5-10 tags]
+[3–5 relevant hashtags.]
 
 --------------------
 
@@ -33,32 +44,23 @@ YOUTUBE
 ====================
 
 Title:
-[Compelling, clickable, SEO-friendly title under 70 characters with emoji]
+[Clear, accurate title under 70 characters using the topic’s familiar name.]
 
 Description:
-[Short hook summary for Shorts feed]
+[Brief summary in plain language. Do not write an expanded article or transcript.]
 
-[Expanded explanation of the reel's concept]
+[Optional question or subscribe CTA.]
 
-👉 [Channel handle subscribe call-to-action]
-
-[Engagement question for comment section]
-
-[5-8 relevant searchable tags and #Shorts]
+[3–5 relevant hashtags, including #Shorts.]
 ```
 
----
+Adapt the wording for each platform without manufacturing extra detail to make them different.
+Use only known handles; omit them when unavailable. Never leave placeholders or test text.
 
-## Best Practices
-- **Instagram**: Focus on emotional/philosophical resonance, spacing with clear line breaks, and community discussion.
-- **YouTube Shorts**: Focus on high-intent search terms, strong titles, and clean description links/handles.
+## Before handover
 
-## Completion check
-
-- Read this guide at the caption step for every new reel and caption revision.
-- Deliver both labelled sections in `export/caption.txt`; this keeps both available in the dashboard.
-- Adapt the writing to the platform rather than repeating the same paragraph twice. For this
-  technology/AI channel, end with an AI/technology CTA rather than an investing or business-news CTA.
-- Use only known handles; omit a handle when unavailable. Keep source notes separate from post copy.
-- Before handover, inspect the actual exported file for an Instagram caption and a YouTube title
-  and description. A generic caption is incomplete even when the video passed its rendering checks.
+Read the actual exported caption file. Check both platform sections and the YouTube title are
+complete. Each summary should read naturally aloud and make sense after a quick glance.
+Remove repeated facts and anything the viewer can get from watching the reel. Keep essential
+qualifiers beside any numerical or forward-looking claim. Do not mark the reel exported with
+one generic caption or with unfinished copy.
