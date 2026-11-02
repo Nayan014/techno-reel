@@ -5,6 +5,11 @@ node_modules/
 .env
 .env.*
 !.env.example
+# Common downloaded OAuth credential files; keep actual copies under .local/publishing/.
+client_secret*.json
+credentials.json
+token.json
+tokens.json
 
 # Voice engine, installed here by `npm run setup` (AGPL-3.0, not part of this repo)
 voicestudio/

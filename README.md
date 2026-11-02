@@ -359,3 +359,11 @@ The avatar status checks for the character files in `.local/host/`. Ask the assi
 Settings include local reference-image uploads, a preview of the prepared avatar, voice auditions (VoiceStudio models must be downloaded before previewing), and style sketches. Style and palette can be left to AI; it resolves these to supported script values for each topic. The project overview shows its actual script and recorded voice choices below the status card. Uploaded photos remain reference images until the animated poses are prepared with the cartoon-host workflow.
 
 The voice picker loads all discovered Kokoro presets (54 on the current installation) and saved OmniVoice profiles from VoiceStudio. Model status includes installed state, estimated download size, and download progress. Missing weights can be downloaded from Settings after any required licence review in VoiceStudio. New installations use `./voicestudio`; an existing `~/VoiceStudio` installation is reused. Model weights live in VoiceStudio’s configured Hugging Face cache and do not need a second copy in the reel repository.
+
+## Direct publishing (optional)
+
+Upload completed reels directly from your computer to Instagram and YouTube, with
+platform-specific captions and a local posting queue. No scheduler subscription or
+public video hosting is required. Publishing is separate from rendering and starts
+only with an explicit execution command. Credentials and queue data stay in ignored
+local files. See [setup, security and publishing commands](docs/publishing.md).

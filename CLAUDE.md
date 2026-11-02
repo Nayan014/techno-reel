@@ -353,3 +353,10 @@ Run `npm run typecheck -- <slug>` after to check the kit and this project's scen
 - `projects/<slug>/export/`: final MP4, cover and caption.
 - `projects/<slug>/raw/`: untouched originals; never delete as cache.
 - `projects/<slug>/working/`: authored scripts, processed media and project scenes; preserve these.
+
+## Optional direct publishing
+
+Reel creation does not publish. For direct Instagram/YouTube uploads or local scheduling,
+follow `.claude/skills/reel-publishing/SKILL.md` and `docs/publishing.md`. Keep tokens in
+ignored local settings, review the exact publishing plan, and only execute within the
+user's publication authorization. Never upload during setup or validation.
