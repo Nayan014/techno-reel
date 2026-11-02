@@ -24,7 +24,8 @@ Avoid generic plain-paper backgrounds. Tie each reel's artwork directly to the t
 
 ### Asset Placement:
 - Save backgrounds into `projects/<slug>/working/images/background.png`.
-- Reference in `script.json` as `"background": "images/background.png"`.
+- Connect the asset through a supported scene prop or a project-local scene. Confirm it appears in rendered stills; do not assume a top-level `background` field is supported.
+- Topic-specific SVG or code-drawn artwork is also suitable when it communicates the concept clearly; a raster image is not required.
 - Keep the center of background artwork readable and balanced to avoid clashing with on-screen cards and captions.
 
 ---
@@ -50,3 +51,13 @@ Never use a raw video frame (frame 0) as the cover. High-performing social posts
 6. **Export**:
    - Save the finalized cover image as `projects/<slug>/export/cover.png`.
    - Rendering the reel generates a frame-based cover, so regenerate the dedicated poster after each final video render and verify the final export.
+
+## Initial review and export check
+
+- Include the cover concept in the first visual review; do not wait for the creator to request
+  an improved cover after export. The question, headline and artwork should communicate this reel’s
+  specific topic, remain readable at thumbnail size and preserve curiosity without giving the answer.
+- Topic-specific backgrounds should support the explanation with recognizable elements (for
+  example AI servers and chat interfaces), while leaving a quiet area behind charts and captions.
+- After each final render, inspect the actual `export/cover.png`: the renderer may overwrite a
+  custom poster. Deliver the reviewed poster, with no social handle or unnecessary CTA badge.

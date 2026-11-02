@@ -127,8 +127,8 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
      `npm run plan -- <slug> --frames` and show it again: real stills, estimated durations.
      Stop. For each change: edit (a talking head: re-run `voice` if a `clip` changed),
      `npm run stills -- <slug> --shot=<id>` for every changed shot, then `plan --frames`.
-  4. When they approve the frames: steps 3–4 (Voice, Pace gate), then steps 6–9 (Render, Motion
-     gate, Caption, Hand over). If a gate makes you change an approved shot, re-run its still and
+  4. When they approve the frames: steps 3–4 (Voice, Pace gate), then steps 6–10 (Render, Motion
+     gate, Platform captions, Cover, Hand over). If a gate makes you change an approved shot, re-run its still and
      `plan --frames` and show the user before you render.
 
 ## Workflow
@@ -140,7 +140,11 @@ A reel stays out of the kit. While making one, write only inside `projects/<slug
 this reel needs, write a local scene instead of changing the kit one. Change kit files (`src/`,
 `scripts/`, `public/sfx/`, the docs) only when the user asks to improve the kit itself.
 
-1. **Plan.** Write the script as 5–9 shots, one spoken line each, 20–45 s total. Follow the
+1. **Plan.** Read `.claude/skills/reel-visuals/SKILL.md` and `.claude/skills/reel-animation/SKILL.md`
+   for backgrounds, cover direction and explanatory graphics. The channel focuses on technology
+   and AI: connect news to the technology and its users, with an AI/technology CTA. Use company
+   finances when they explain the story; avoid turning the reel into investor or ticker coverage.
+   Write the script as 5–9 shots, one spoken line each, 20–45 s total. Follow the
    playbook below. Pick a scene for every shot.
 2. **Write `projects/<slug>/working/script.json`.** Copy the shape of `examples/example/script.json`.
    `palette` is one of `clay`, `cobalt`, `forest`, `mono`; `style` is `flat` or `print`;
@@ -172,12 +176,20 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
 7. **Motion gate.** `npm run pace -- <slug>` watches the mp4 and lists every stretch where nothing
    on screen changes. Fix every `FAIL` (still over 1.2 s) with a pop, a cue, a zoom or a shorter
    shot, re-render, re-run. A warn in the first 2 s is worth fixing too: that's where people swipe.
-8. **Caption.** Write `projects/<slug>/export/caption.txt`: a 1–2 line post caption in the reel's language,
-   a question or CTA, and 3–5 relevant hashtags.
-9. **Hand over.** Tell the user the mp4, caption and `projects/<slug>/export/cover.png` (the hook as a cover
-   image to pick when posting) paths and how long the reel is. Mention
-   `npm run studio -- <slug>` if they want to scrub through it in the browser.
-   Use `npm run dashboard` to review all projects in one local page.
+8. **Platform captions.** Read `.claude/skills/reel-captions/SKILL.md` before writing post copy.
+   Write separate Instagram and YouTube sections in `projects/<slug>/export/caption.txt`.
+   Instagram needs its own caption, comment CTA and hashtags; YouTube needs a distinct title,
+   description, subscribe CTA and hashtags. Never hand over one generic caption for both.
+   Check both sections are complete and contain no invented handles before marking exported.
+9. **Cover.** Read `.claude/skills/reel-visuals/SKILL.md` during planning, so the cover is part
+   of the initial visual review. Design a purposeful poster with a clear topic, short headline
+   or curiosity question, and mobile-readable type. Review crop safety and avoid revealing the
+   answer. The renderer writes a frame-based cover: verify `export/cover.png` after the final
+   render and replace it with the dedicated poster when needed. Do not treat an arbitrary still
+   as a finished cover.
+10. **Hand over.** Provide the MP4, platform captions and final cover paths and reel duration.
+   Mention `npm run studio -- <slug>` for browser scrubbing and `npm run dashboard` for all projects.
+   Mark exported only after the required gates, both platform captions and cover review are complete.
 
 ## Talking head
 
@@ -233,7 +245,7 @@ Pick a shape, fill it with the topic, keep it ≤ 5 words, and stage the shot af
 | the warning   | Don't [act] before this.      | Don't upgrade before this. | `Statement` with why   |
 
 - The payoff is in frame one: a result, a number, a thing doing something surprising. The `Hook`
-  scene is readable from its first frame, and that frame is also the cover.
+  scene is readable from its first frame, and that frame can seed the dedicated cover design; follow the visual guide before export.
 - First person, present tense when it's the user's own story: "My…", "I just…".
 - A question hook is answered within the reel, by the shot right after it when possible.
 - When Insights shows a high skip rate (over ~60 %), re-cut only the first 2 s, a new hook line

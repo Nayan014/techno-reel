@@ -38,3 +38,14 @@ These standards govern animation rendering, component staging, and audio-visual 
 ## 5. Framing & Handles
 - **Handle Display**: Hide the social handle component completely when none is supplied; do not leave empty badges or placeholder gaps.
 - **Safe Area**: Respect the Instagram interface boundaries (top ~220 px, bottom ~380 px, right ~150 px).
+
+## Explanatory charts and continuity
+
+- Use simple labelled charts when explaining growth, profit, loss or break-even. Show the
+  relationship (for example revenue versus costs), not only a large isolated number.
+- Keep units, periods and scales clear; distinguish operating profit/loss from net profit/loss.
+  Label calculations and fixed-cost assumptions; do not present illustrations as forecasts.
+- Across consecutive stages of one chart, preserve the existing bars and their scale. Animate
+  only the new information. For break-even, start with the prior revenue/cost bars already filled,
+  then grow the additional revenue in a distinct colour with a label such as “extra revenue”.
+- Cue each change to the narration. Do not restart a completed chart when explaining the next step.
