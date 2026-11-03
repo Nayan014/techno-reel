@@ -124,12 +124,8 @@ When the user gives you a topic or a video, ask once, as a two-choice question: 
 - **Auto**: run the whole workflow on your own at full speed ("go crazy") and hand over the mp4. Pick the style, palette, and music to best fit the topic (or use dashboard defaults) without pausing for intermediate questions.
 - **Plan**: the user reviews the theme, storyboard, and frames before anything is rendered:
   1. **Theme selection**: List the project's available themes (the 8 style & palette combinations: Flat / Print across Clay, Cobalt, Forest, Mono) with concise visual descriptions and ask the user which theme they want to create/use before drafting the script.
-  2. Do steps 1–2 (draft script in `projects/<slug>/working/script.json` with the chosen theme; a talking head: Transcribe, Find the face and Cut first). If a shot needs a scene that doesn't exist yet, name it anyway; its card says "new scene, to write".
-  3. `npm run plan -- <slug>` writes `projects/<slug>/preview/plan.html`: one card per shot with its frame,
-     line and captions, on-screen text, and the tools that make it. Durations are estimated.
-     Show the page to the user (open it in your browser pane or file preview if you have one,
-     else `open projects/<slug>/preview/plan.html`) and stop. For each change they ask for ("03: make it a
-     BigNumber"), edit `script.json`, re-run `plan`, show it again. Voice and render nothing yet.
+  2. Do steps 1–2 (draft script in `projects/<slug>/working/script.json` with the chosen theme; create/generate a dedicated thematic background image tied to the topic at `projects/<slug>/working/images/background.png` and set `"background": "images/background.png"` in `script.json`; a talking head: Transcribe, Find the face and Cut first). If a shot needs a scene that doesn't exist yet, name it anyway; its card says "new scene, to write".
+  3. `npm run plan -- <slug>` writes `projects/<slug>/preview/plan.html`: displays the thematic background concept for approval and one card per shot with its frame, line, captions, on-screen text, and tools. Durations are estimated. Show the page to the user (open it in your browser pane or file preview if you have one, else `open projects/<slug>/preview/plan.html`) and present the storyboard and background for review. For each change they ask for ("03: make it a BigNumber"), edit `script.json`, re-run `plan`, show it again. Voice and render nothing yet.
   4. When they approve: write any new scenes, then step 5 (Look gate; fix what you find
      yourself) without recording the voice: `stills` times every line that has none yet by
      estimate. A talking head runs `voice` first; it only cuts the take. Then

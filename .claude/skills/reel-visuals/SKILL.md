@@ -29,17 +29,17 @@ Avoid generic plain-paper backgrounds. Tie each reel's artwork directly to the t
 
 ### Workflow by Mode:
 - **Plan Mode**:
-  1. Identify all core thematic dimensions of the prompt.
-  2. Generate **3 distinct background concepts** representing these dimensions.
-  3. Present the 3 options to the user and request their choice before proceeding.
+  1. Identify the core facets of the topic.
+  2. Generate a custom thematic background artwork matching the channel palette at `projects/<slug>/working/images/background.png` and set `"background": "images/background.png"` in `script.json`.
+  3. Display the background concept directly in `plan.html` and present it to the user for review and approval alongside the storyboard before recording voice or rendering.
 - **Auto Mode**:
   1. Identify the multidimensional themes from the prompt.
-  2. Propose the background visual direction and confirm with the user before finalizing the render.
+  2. Generate the background artwork automatically and apply it with the topic-matched palette.
 
 ### Asset Placement:
 - Save backgrounds into `projects/<slug>/working/images/background.png`.
-- Connect the asset through a supported scene prop or a project-local scene. Confirm it appears in rendered stills; do not assume a top-level `background` field is supported.
-- Topic-specific SVG or code-drawn artwork is also suitable when it communicates the concept clearly; a raster image is not required.
+- Set `"background": "images/background.png"` at the top level of `script.json`. Remotion blends it seamlessly behind cards with a safe-zone readability gradient.
+- Topic-specific SVG, AI-generated imagery, or code-drawn artwork is suitable.
 - Keep the center of background artwork readable and balanced to avoid clashing with on-screen cards and captions.
 
 ---

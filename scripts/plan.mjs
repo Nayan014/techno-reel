@@ -72,6 +72,9 @@ const dataUri = (path) =>
     ? `data:${MIME[extname(path).toLowerCase()]};base64,${readFileSync(path).toString("base64")}`
     : null;
 
+const bgPath = script.background && join(dir, script.background);
+const bgUri = bgPath && dataUri(bgPath);
+
 /** Any prop value as readable HTML: lists as bullets, {label, value} as "label: value". */
 const show = (value) => {
   if (Array.isArray(value))
@@ -221,9 +224,21 @@ const html = `<!doctype html>
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { padding: 2px 9px; border-radius: 99px; background: var(--chip); font-size: 13px; }
   .chip.warn { background: var(--warn); }
-  @media (max-width: 520px) {
+  .bg-section { margin-bottom: 28px; padding: 20px; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; display: flex; gap: 28px; align-items: flex-start; }
+  .bg-thumb-container { flex: 0 0 260px; }
+  .bg-thumb { width: 260px; aspect-ratio: 9 / 16; border-radius: 12px; object-fit: cover; border: 1.5px solid var(--line); box-shadow: 0 8px 24px rgba(0,0,0,0.08); display: block; }
+  .bg-info { flex: 1; min-width: 0; padding-top: 6px; }
+  .bg-info h2 { margin: 8px 0 10px; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .bg-info p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .bg-tag { display: inline-block; padding: 3px 10px; border-radius: 99px; background: var(--chip); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+  .bg-specs { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 16px 0 0; padding: 14px; background: var(--bg); border-radius: 10px; font-size: 13px; }
+  .bg-specs dt { font-weight: 600; color: var(--muted); }
+  .bg-specs dd { margin: 0; }
+  @media (max-width: 680px) {
     .card { flex-direction: column; }
     .frame { flex: none; align-self: center; }
+    .bg-section { flex-direction: column; align-items: center; }
+    .bg-thumb-container { flex: none; width: 100%; max-width: 260px; }
   }
 </style>
 </head>
@@ -232,6 +247,23 @@ const html = `<!doctype html>
   <div class="top"><h1>${esc(script.title)}</h1><span class="stage">${stage}</span></div>
   <p class="meta">${esc(slug)} · ${esc(script.style ?? "flat")} · ${esc(script.palette)} · ${esc(script.handle)} · ${script.music ? `music: ${esc(script.music)}` : "no music"} · ${script.shots.length} shots · ${approx}${total.toFixed(1)} s${estimated ? " (estimated, no voice yet)" : ""}</p>
   <p class="hint">Want a change? Reply in chat with the card number, e.g. “03: make it a BigNumber”.</p>
+  ${bgUri ? `
+  <section class="bg-section">
+    <div class="bg-thumb-container">
+      <img class="bg-thumb" src="${bgUri}" alt="Thematic Background Concept">
+    </div>
+    <div class="bg-info">
+      <span class="bg-tag">Thematic Background Concept</span>
+      <h2>Visual Artwork for Approval</h2>
+      <p>Custom 9:16 background artwork generated for <strong>${esc(script.title)}</strong>. Built with the <strong>Flat Clay</strong> identity, featuring peripheral code orchestration nodes and an uncluttered center stage for maximum text readability.</p>
+      <dl class="bg-specs">
+        <dt>Asset Path</dt><dd><code>${esc(script.background)}</code></dd>
+        <dt>Dimensions</dt><dd>1080×1920 (9:16 vertical)</dd>
+        <dt>Center Safe Zone</dt><dd>Preserved with Remotion depth gradient</dd>
+        <dt>Color Harmonization</dt><dd>Clay Palette (#C8643B terracotta, #F3EEE6 sand, #161412 ink)</dd>
+      </dl>
+    </div>
+  </section>` : ""}
   <div class="grid">
 ${script.shots.map(card).join("\n")}
   </div>
