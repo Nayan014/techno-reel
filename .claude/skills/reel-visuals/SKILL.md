@@ -9,6 +9,20 @@ Every reel must have strong, purposeful visual direction that reflects the multi
 
 ---
 
+## Channel Visual Identity Standard
+
+The canonical visual standard for the channel is **Flat Clay**:
+- **Style**: `flat` (dot grid, bold typography, hard drop shadows).
+- **Palette**: `clay`
+  - Accent: `#C8643B` (warm terracotta)
+  - Paper: `#F3EEE6` (warm off-white / sand)
+  - Card: `#FFFCF7` (soft cream)
+  - Ink: `#161412` (dark espresso black)
+
+Use Flat Clay as the default baseline across all reels, cards, and covers to maintain cohesive channel branding.
+
+---
+
 ## 1. Thematic Backgrounds
 
 Avoid generic plain-paper backgrounds. Tie each reel's artwork directly to the topic's core facets (e.g. technology, spirituality, conflict/unchecked power).

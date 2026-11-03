@@ -5,8 +5,7 @@ script → voice → scenes in code → self-check → mp4 + caption. It also ed
 talking-head recording into a reel (see **Talking head**). Video is React, rendered by
 [Remotion](https://www.remotion.dev). Everything renders locally.
 
-When the user asks for a reel, first ask **Auto** or **Plan** (see **Modes**), then run the
-workflow below. Ask nothing else unless the topic is missing. Reply in the user's language and
+When the user asks for a reel, first ask **Auto** or **Plan** (see **Modes**). In Auto mode, run autonomously end-to-end. In Plan mode, first list the project's themes for review so the user can choose which theme to create/use before script and storyboard generation. Ask nothing else unless the topic is missing. Reply in the user's language and
 write the reel in it too.
 
 ## Conversation style
@@ -60,9 +59,13 @@ It refreshes every five seconds. Approvals and feedback happen in this chat.
   Keep legacy originals until the user chooses to remove them. Assign any legacy custom scenes
   to their project manually and update their relative imports.
 
-## Styles
+## Styles & Palettes
 
-`style` in `script.json` picks the look; every scene works in both.
+`style` and `palette` in `script.json` establish the channel's visual identity; every scene works in all combinations.
+
+- **Canonical Channel Standard**: `flat` style with the `clay` palette (`#C8643B` terracotta accent, `#F3EEE6` warm paper, `#FFFCF7` card, `#161412` dark ink). Use this as the default visual standard across all reels for consistent, recognizable channel branding.
+
+### Styles
 
 - `flat` (default): bold outlines, hard shadows, dot grid, Anton headlines.
 - `print`: a cut-paper studio. Grainy lit card stock, soft depth, paper-strip captions that
@@ -76,6 +79,13 @@ It refreshes every five seconds. Approvals and feedback happen in this chat.
 with the same poses. It's made once from their photo with the `cartoon-host` skill
 (`.claude/skills/cartoon-host/SKILL.md`) and kept in `.local/host/`. Offer it when the user wants
 a host that looks like them.
+
+### Palettes
+
+- `clay` (channel default): warm terracotta editorial (`#C8643B` accent, `#F3EEE6` paper, `#FFFCF7` card, `#161412` ink).
+- `cobalt`: electric blue tech (`#2C4BDB` accent, `#ECEFF6` paper, `#FBFCFF` card, `#10131A` ink).
+- `forest`: natural deep green (`#2E6B4A` accent, `#ECF1E8` paper, `#FBFDF9` card, `#121712` ink).
+- `mono`: stark monochrome (`#111111` accent, `#EFEFEC` paper, `#FFFFFF` card, `#111111` ink).
 
 
 ## First run
@@ -111,23 +121,22 @@ Set defaults for new projects in the dashboard; they live in `.local/video-setti
 When the user gives you a topic or a video, ask once, as a two-choice question: **Auto** or
 **Plan**? Skip the question when they already said which (`plan it first`, `just make it`).
 
-- **Auto**: run the whole workflow on your own and hand over the mp4.
-- **Plan**: the user reviews a storyboard twice before anything is rendered, and no voice is
-  recorded until they've approved the frames.
-  1. Do steps 1–2 (a talking head: Transcribe, Find the face and Cut first). If a shot needs a
-     scene that doesn't exist yet, name it anyway; its card says "new scene, to write".
-  2. `npm run plan -- <slug>` writes `projects/<slug>/preview/plan.html`: one card per shot with its frame,
+- **Auto**: run the whole workflow on your own at full speed ("go crazy") and hand over the mp4. Pick the style, palette, and music to best fit the topic (or use dashboard defaults) without pausing for intermediate questions.
+- **Plan**: the user reviews the theme, storyboard, and frames before anything is rendered:
+  1. **Theme selection**: List the project's available themes (the 8 style & palette combinations: Flat / Print across Clay, Cobalt, Forest, Mono) with concise visual descriptions and ask the user which theme they want to create/use before drafting the script.
+  2. Do steps 1–2 (draft script in `projects/<slug>/working/script.json` with the chosen theme; a talking head: Transcribe, Find the face and Cut first). If a shot needs a scene that doesn't exist yet, name it anyway; its card says "new scene, to write".
+  3. `npm run plan -- <slug>` writes `projects/<slug>/preview/plan.html`: one card per shot with its frame,
      line and captions, on-screen text, and the tools that make it. Durations are estimated.
      Show the page to the user (open it in your browser pane or file preview if you have one,
      else `open projects/<slug>/preview/plan.html`) and stop. For each change they ask for ("03: make it a
      BigNumber"), edit `script.json`, re-run `plan`, show it again. Voice and render nothing yet.
-  3. When they approve: write any new scenes, then step 5 (Look gate; fix what you find
+  4. When they approve: write any new scenes, then step 5 (Look gate; fix what you find
      yourself) without recording the voice: `stills` times every line that has none yet by
      estimate. A talking head runs `voice` first; it only cuts the take. Then
      `npm run plan -- <slug> --frames` and show it again: real stills, estimated durations.
      Stop. For each change: edit (a talking head: re-run `voice` if a `clip` changed),
      `npm run stills -- <slug> --shot=<id>` for every changed shot, then `plan --frames`.
-  4. When they approve the frames: steps 3–4 (Voice, Pace gate), then steps 6–10 (Render, Motion
+  5. When they approve the frames: steps 3–4 (Voice, Pace gate), then steps 6–10 (Render, Motion
      gate, Platform captions, Cover, Hand over). If a gate makes you change an approved shot, re-run its still and
      `plan --frames` and show the user before you render.
 
@@ -147,6 +156,7 @@ this reel needs, write a local scene instead of changing the kit one. Change kit
    Write the script as 5–9 shots, one spoken line each, 20–45 s total. Follow the
    playbook below. Pick a scene for every shot.
 2. **Write `projects/<slug>/working/script.json`.** Copy the shape of `examples/example/script.json`.
+   Default `palette` to `clay` and `style` to `flat` (the channel standard) unless requested otherwise.
    `palette` is one of `clay`, `cobalt`, `forest`, `mono`; `style` is `flat` or `print`;
    `handle` is the user's @handle (ask once if you don't know it, then reuse it).
    `music` is a bed under the voice that dips while a line is spoken: `lofi`, `upbeat`, `chill`

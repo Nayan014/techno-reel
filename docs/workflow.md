@@ -24,7 +24,7 @@ The assistant checks timing, shot layout and motion during production.
 ## How the workflow works
 
 Start with an idea, a script or your own recording. Your AI assistant runs the steps;
-in Plan mode, you review the storyboard and real frames before production continues.
+in Plan mode, you review the theme, storyboard and real frames before production continues.
 
 <details>
 <summary>View the production workflow</summary>
@@ -37,7 +37,8 @@ flowchart TD
     cut --> mode
 
     mode -- Auto --> audio["Generate voice or cut recorded clips"]
-    mode -- Plan --> storyboard["Review storyboard in chat"]
+    mode -- Plan --> theme["Select theme (style + palette)"]
+    theme --> storyboard["Review storyboard in chat"]
     storyboard -- Changes --> revise["Revise shots"]
     revise --> storyboard
     storyboard -- Approved --> stills["Build scenes and check real shot stills"]
