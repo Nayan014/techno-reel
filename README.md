@@ -2,8 +2,7 @@
 
 **Turn an idea or recording into a finished reel with your AI assistant.**
 
-Get a vertical **1080×1920 MP4**, cover image and post caption, with animated scenes,
-word-by-word captions and optional music. Everything renders locally on your Mac.
+Get a vertical **1080×1920 MP4**, custom cover poster and platform captions, with animated scenes, word-by-word captions, and background music. Built on curated styles (`flat`, `print`) and palettes (`clay`, `cobalt`, `forest`, `mono`), featuring our signature **Flat Clay** channel standard. Everything renders locally on your Mac.
 
 ![Flat and print reel styles](docs/showcase.jpg)
 
@@ -31,12 +30,15 @@ Just want to try the included example? Use `npm run setup -- --render-only`, the
 Open this folder in your AI coding assistant and say:
 
 ```text
-Make a reel about 3 sleep tips, under 25 seconds.
-My handle is @sleepbetter.
+Make a reel about 3 AI coding rules, under 25 seconds.
+My handle is @techno.
 ```
 
-Choose **Auto** to let the assistant finish it, or **Plan** to review the storyboard
-and shot previews first. To edit a recording, give the assistant its file path instead.
+Choose **Auto** or **Plan**:
+- **Auto**: The assistant runs autonomously end-to-end at full speed, picking the optimal theme, music, and layout, and delivers the finished MP4, cover, and post captions.
+- **Plan**: Collaborative review mode. Review and approve the visual theme, thematic background artwork, storyboard cards, and real shot frames before anything is voiced or rendered.
+
+To edit your own recording into a talking-head reel, give the assistant its video file path instead.
 
 ### 3. Review and refine
 
